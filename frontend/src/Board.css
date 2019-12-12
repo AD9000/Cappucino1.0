@@ -1,0 +1,33 @@
+@import './chessFont.css';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.lightbackground {
+  background-color: burlywood;
+  text-align: center;  
+}
+
+.darkbackground {
+  background-color: brown;
+  text-align: center;  
+}
+
+.data {
+  margin: 10px;
+  background-color: green;
+}
+
+.Hi {
+  height: 100%;
+  flex-direction: column;
+  justify-items: center;
+  font-family: Chess;
+}
+
+.cell {
+  border-right: 1px solid black;
+}
