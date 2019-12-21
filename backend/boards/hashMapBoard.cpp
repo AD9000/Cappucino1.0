@@ -1,9 +1,11 @@
-#include <tr1/unordered_map>
+#include <map>
+using namespace std;
 
 class board
 {
 private:
-    /* data */
+    // List of pieces on the board
+    map<uint8_t, uint8_t> pieces;
 public:
     board(/* args */);
     ~board();
@@ -11,6 +13,7 @@ public:
 
 board::board(/* args */)
 {
+    pieces.add
 }
 
 board::~board()
