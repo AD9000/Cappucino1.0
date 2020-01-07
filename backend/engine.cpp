@@ -1,9 +1,11 @@
 
 #include <iostream>
-#include "boards/board.hpp"
+#include "boards/bitboard.hpp"
 
 int main()
 {
-    displayAll();
+    ChessBoard ch = ChessBoard();
+    // ch.displayAll();
+    ch.generateMoves();
     return 0;
 }

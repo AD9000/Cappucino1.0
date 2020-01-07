@@ -1,6 +1,6 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
 
-void displayAll();
+void displayAll(chessBoard board);
 
 #endif
