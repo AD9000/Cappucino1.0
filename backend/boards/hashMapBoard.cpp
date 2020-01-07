@@ -1,11 +1,13 @@
-#include <map>
+#include <unordered_map>
 using namespace std;
+
+#define PIECE_TYPE uint8_t
 
 class board
 {
 private:
     // List of pieces on the board
-    map<uint8_t, uint8_t> pieces;
+    unordered_map<PIECE_TYPE, pair<uint8_t, uint8_t>> pieces;
 public:
     board(/* args */);
     ~board();
@@ -13,9 +15,5 @@ public:
 
 board::board(/* args */)
 {
-    pieces.add
-}
-
-board::~board()
-{
+    
 }

@@ -1,0 +1,24 @@
+# Ignore all
+*
+
+# Add everything with extensions
+!*.*
+
+# Add all subdirectories
+!*/
+
+# Add Makefiles
+!Makefile
+
+# Ignore .vscode
+.vscode/
+
+# Ignore .out files
+*.out
+
+# Ignore object files
+*.o
+
+
+# test.cpp for testing
+test.cpp
