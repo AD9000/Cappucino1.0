@@ -106,8 +106,8 @@ void ChessBoard::generateMoves()
 bitboard ChessBoard::generateRookMoves(bitboard board, bitboard oppositeColorPieces)
 {
     // Find the row and column
-    int row = findRow(board);
-    int column = findColumn(board);
+    int row = findRows(board);
+    int column = findColumns(board);
 
     // Now examine each element on the row and column
 
@@ -117,63 +117,64 @@ bitboard ChessBoard::generateRookMoves(bitboard board, bitboard oppositeColorPie
 }
 
 // Uses binary search for speed!
-int ChessBoard::findRow(bitboard board)
+int ChessBoard::findRows(bitboard board)
 {
 
-    if (board & halfRowBottom > 0)
-    {
-        if (board & row78 > 0)
-        {
-            if (board & row8 > 0)
-            {
-                return 8;
-            }
-            else
-            {
-                return 7;
-            }
-        }
-        else
-        {
-            if (board & row5 > 0)
-            {
-                return 5;
-            }
-            else
-            {
-                return 6;
-            }
-        }
-    }
-    else
-    {
-        if (board & row34 > 0)
-        {
-            if (board & row3 > 0)
-            {
-                return 3;
-            }
-            else
-            {
-                return 4;
-            }
-        }
-        else
-        {
-            if (board & row1 > 0)
-            {
-                return 1;
-            }
-            else
-            {
-                return 2;
-            }
-        }
-    }
+    // if ((board & halfRowBottom) > 0)
+    // {
+    //     if ((board & row78) > 0)
+    //     {
+    //         if (board & row8 > 0)
+    //         {
+    //             return 8;
+    //         }
+    //         else
+    //         {
+    //             return 7;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         if (board & row5 > 0)
+    //         {
+    //             return 5;
+    //         }
+    //         else
+    //         {
+    //             return 6;
+    //         }
+    //     }
+    // }
+
+    // if ((board & !halfRowBottom) > 0)
+    // {
+    //     if (board & row34 > 0)
+    //     {
+    //         if (board & row3 > 0)
+    //         {
+    //             return 3;
+    //         }
+    //         else
+    //         {
+    //             return 4;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         if (board & row1 > 0)
+    //         {
+    //             return 1;
+    //         }
+    //         else
+    //         {
+    //             return 2;
+    //         }
+    //     }
+    // }
 }
 
 // Uses binary search for speed!
-int ChessBoard::findColumn(bitboard board)
+int ChessBoard::findColumns(bitboard board)
 {
 
     if (board & halfColRight > 0)
@@ -228,11 +229,11 @@ int ChessBoard::findColumn(bitboard board)
     }
 }
 
-bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)
-{
+// bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)
+// {
 
-    return rows[findRow(board) - 1] & columns[findColumn(board) - 1];
-}
+//     return rows[findRow(board) - 1] & columns[findColumn(board) - 1];
+// }
 
 // int main()
 // {
