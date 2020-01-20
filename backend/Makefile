@@ -2,7 +2,7 @@ BOARDDIR=boards
 
 CC=g++
 
-all: findRookMagics findBishopMagics engine
+all: rfind bfind engine
 
 .PHONY: findRookMagics
 rfind: findRookMagics.cpp
