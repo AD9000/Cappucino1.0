@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+#include <random>
+#include <fstream>
 
 #include "boards/masks.hpp"
 using namespace std;
@@ -82,12 +85,146 @@ vector<bitboard> generateBishopMasks()
     return masks;
 }
 
+template <typename T>
+void printUnorderedSet(unordered_set<T> variations)
+{
+    cout << variations.size() << endl;
+    for (auto itr = variations.begin(); itr != variations.end(); itr++)
+    {
+        // cout << (*itr) << endl;
+        displayBoard(*itr);
+    }
+}
+
+// Generate all possible blocker boards for given bitboard, at given depth
+void generateBlockerVariations(bitboard board, uint16_t startIndex, unordered_set<bitboard> &variations)
+{
+    for (uint16_t i = startIndex; i < 64; i++)
+    {
+        bitboard checker = (1ULL << i);
+        if ((checker & board) && board)
+        {
+            // printf("index: %d\n", i);
+            bitboard newBoard = board & ~checker;
+            // displayBoard(newBoard);
+            variations.insert(board);
+            variations.insert(newBoard);
+            generateBlockerVariations(board, i + 1, variations);
+            generateBlockerVariations(newBoard, i, variations);
+        }
+    }
+}
+
+uint64_t generateRandomNumber()
+{
+    random_device dev;
+    mt19937_64 rng(dev());
+    uniform_int_distribution<mt19937_64::result_type> dist(1, UINT64_MAX);
+
+    return dist(rng);
+}
+
+bitboard findMagicNumber(bitboard bishopMask)
+{
+    uint64_t x = bitboardMax >> 5;
+    uint64_t counter = 0;
+    unordered_set<bitboard> variations;
+    generateBlockerVariations(bishopMask, 0, variations);
+    // For each possible variation for a rook position,
+    // Test number
+    unordered_set<uint64_t> generated;
+    uint64_t hasher;
+    bool check = false;
+    while (true)
+    {
+        hasher = generateRandomNumber();
+        if (generated.find(hasher) != generated.end())
+        {
+            printf("%lu, %lu\n", hasher, generated.size());
+            continue;
+        }
+        else
+        {
+            generated.insert(hasher);
+            if (generated.size() % 10000000000 == 0)
+            {
+                printf("%lu, %lu\n", hasher, generated.size());
+            }
+        }
+        unordered_set<uint16_t> indices;
+        for (bitboard variation : variations)
+        {
+            uint16_t index = (hasher * variation) >> 51;
+            if (indices.find(index) != indices.end())
+            {
+                break;
+            }
+            else
+            {
+                indices.insert(index);
+            }
+        }
+        if (indices.size() == variations.size())
+        {
+            cout << indices.size() << endl;
+            cout << variations.size() << endl;
+            cout << "Start" << endl;
+            for (uint16_t index : indices)
+            {
+                cout << index << endl;
+            }
+            check = true;
+            break;
+        }
+        else
+        {
+            printf("Tested: %lu, Size of test: %lu\n", hasher, indices.size());
+        }
+    }
+    if (check)
+    {
+        // ofstream myfile;
+        // myfile.open("example.txt");
+        // myfile << hasher << endl;
+        // myfile << "Writing this to a file.\n";
+        // myfile << variations.size() << endl;
+        // for (auto itr = variations.begin(); itr != variations.end(); itr++)
+        // {
+        //     myfile << (*itr) << endl;
+        //     // displayBoard(*itr);
+        // }
+
+        // myfile.close();
+    }
+
+    return hasher;
+}
+
+void findAllBishopMagicNumbers(vector<bitboard> masks)
+{
+    uint16_t magicNumbers[64] = {0};
+    ofstream myfile;
+    myfile.open("bishopMagics.txt");
+    for (int i = 0; i < masks.size(); i++)
+    {
+        bitboard magicNumber = findMagicNumber(masks[i]);
+        magicNumbers[i] = magicNumber;
+
+        myfile << hex << magicNumber << endl;
+    }
+    myfile.close();
+}
+
 int main()
 {
     vector<bitboard> masks = generateBishopMasks();
-    for (auto i = masks.begin(); i != masks.end(); i++)
-    {
-        displayBoard(*i);
-    }
+    findAllBishopMagicNumbers(masks);
+    // unordered_set<bitboard> variations;
+    // generateBlockerVariations(masks[0], 0, variations);
+    // printUnorderedSet(variations);
+    // for (auto i = masks.begin(); i != masks.end(); i++)
+    // {
+    //     displayBoard(*i);
+    // }
     return 0;
 }
