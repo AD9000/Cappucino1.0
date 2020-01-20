@@ -19,6 +19,8 @@
 # Ignore object files
 *.o
 
+# Ignore .txt files generated for magics testing
+*.txt
 
 # test.cpp for testing
 test.cpp

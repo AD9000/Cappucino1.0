@@ -2,7 +2,16 @@ BOARDDIR=boards
 
 CC=g++
 
-all: engine findMagic
+all: findRookMagics findBishopMagics engine
+
+.PHONY: findRookMagics
+rfind: findRookMagics.cpp
+	$(CC) -o rfind findRookMagics.cpp
+
+.PHONY: findBishopMagics
+bfind: findBishopMagics.cpp
+	$(CC) -o bfind findBishopMagics.cpp
+
 
 .PHONY: engine
 engine:	engine.o $(BOARDDIR)/board.o
@@ -13,9 +22,6 @@ engine.o: engine.cpp
 $(BOARDDIR)/board.o: $(BOARDDIR)/board.hpp $(BOARDDIR)/bitboard.hpp $(BOARDDIR)/bitboard.cpp
 	+$(MAKE) -C boards
 
-.PHONY: findMagic
-findMagic: findMagicNumbers.cpp
-	$(CC) -o find findMagicNumbers.cpp
 
 .PHONY: clean
 clean:
