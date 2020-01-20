@@ -33,6 +33,8 @@ const bitboard column6 = 289360691352306692ULL;
 const bitboard column7 = 144680345676153346ULL;
 const bitboard column8 = 72340172838076673ULL;
 
+const bitboard bitboardMax = 0xffffffffffffffffULL;
+
 const bitboard rows[] = {row1, row2, row3, row4, row5, row6, row7, row8};
 const bitboard columns[] = {column1, column2, column3, column4, column5, column6, column7, column8};
 }; // namespace masks
