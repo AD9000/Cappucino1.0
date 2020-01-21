@@ -3,10 +3,20 @@
 #include <unordered_set>
 #include <random>
 #include <fstream>
+#include <bitset>
 
 #include "boards/masks.hpp"
 using namespace std;
 using namespace masks;
+
+typedef struct _bishopMask
+{
+    int row;
+    int col;
+    int ldiag;
+    int rdiag;
+    bitboard board;
+} bishopMask;
 
 void displayBoard(bitboard board)
 {
@@ -30,55 +40,62 @@ void displayBoard(bitboard board)
     printf("\n");
 }
 
-bitboard findLDiag(bitboard position)
+int findLDiag(bitboard position)
 {
-    for (bitboard ldiag : ldiags)
+    int len = sizeof(ldiags) / sizeof(bitboard);
+    for (int i = 0; i < len; i++)
     {
-        if (position & ldiag)
+        if (position & ldiags[i])
         {
-            return ldiag;
+            return i;
         }
     }
 }
 
-bitboard findRDiag(bitboard position)
+int findRDiag(bitboard position)
 {
-    for (bitboard rdiag : rdiags)
+    int len = sizeof(rdiags) / sizeof(bitboard);
+    for (int i = 0; i < len; i++)
     {
-        if (position & rdiag)
+        if (position & rdiags[i])
         {
-            return rdiag;
+            return i;
         }
     }
 }
 
-vector<bitboard> generateBishopMasks()
+vector<bishopMask> generateBishopMasks()
 {
     // For every index on the bitboard
-    vector<bitboard> masks(64);
+    vector<bishopMask> masks(64);
     for (int row = 0; row < 8; row++)
     {
         for (int col = 0; col < 8; col++)
         {
             int index = row * 8 + col;
             bitboard position = rows[row] & columns[col];
-            masks[index] = findLDiag(position) ^ findRDiag(position);
+            masks[index].row = row;
+            masks[index].col = col;
+            masks[index].ldiag = findLDiag(position);
+            masks[index].rdiag = findRDiag(position);
+            bitboard board = ldiags[masks[index].ldiag] ^ rdiags[masks[index].rdiag];
             if (row != 0)
             {
-                masks[index] &= ~rows[0];
+                board &= ~rows[0];
             }
             if (row != 7)
             {
-                masks[index] &= ~rows[7];
+                board &= ~rows[7];
             }
             if (col != 0)
             {
-                masks[index] &= ~columns[0];
+                board &= ~columns[0];
             }
             if (col != 7)
             {
-                masks[index] &= ~columns[7];
+                board &= ~columns[7];
             }
+            masks[index].board = board;
         }
     }
 
@@ -200,14 +217,14 @@ bitboard findMagicNumber(bitboard bishopMask)
     return hasher;
 }
 
-void findAllBishopMagicNumbers(vector<bitboard> masks)
+void findAllBishopMagicNumbers(vector<bishopMask> masks)
 {
     uint16_t magicNumbers[64] = {0};
     ofstream myfile;
     myfile.open("bishopMagics.txt");
     for (int i = 0; i < masks.size(); i++)
     {
-        bitboard magicNumber = findMagicNumber(masks[i]);
+        bitboard magicNumber = findMagicNumber(masks[i].board);
         magicNumbers[i] = magicNumber;
 
         myfile << hex << magicNumber << endl;
@@ -215,12 +232,163 @@ void findAllBishopMagicNumbers(vector<bitboard> masks)
     myfile.close();
 }
 
+bitboard generateTopLDiag(bishopMask mask, bitboard andres)
+{
+    int maskIndex = mask.row * 8 + mask.col;
+
+    bitset<64> ldiag = ldiags[mask.ldiag];
+    bool firstBlocker = false;
+    int row = mask.row - 1;
+    int col = mask.col - 1;
+    int lastBitIndex = row * 8 + col;
+    while (row >= 0 && col >= 0)
+    {
+        bitboard adder = (1ULL << lastBitIndex);
+        if (adder & andres > 0)
+        {
+            firstBlocker = true;
+        }
+
+        if (firstBlocker)
+        {
+            // set to 0
+            andres &= ~adder;
+        }
+        else
+        {
+            andres |= adder;
+        }
+        row--;
+        col--;
+        lastBitIndex = row * 8 + col;
+    }
+    return andres;
+}
+
+bitboard generateLegalLDiag(bishopMask mask, bitboard andres, bitboard blockers)
+{
+    bitboard ldiag = ldiags[mask.ldiag];
+
+    int maskIndex = mask.row * 8 + mask.col;
+    bitboard ldiagMask = (mask.board & ldiags[mask.ldiag]) & blockers;
+    bitset<64> set = ldiags[mask.ldiag];
+    // bitboard adder = ldiags[]
+
+    // cout << "Start: maskindex: " << maskIndex << endl;
+
+    // displayBoard(blockers);
+    // displayBoard(ldiagMask);
+
+    // // For every element until the maskIndex
+    // int firstBlocker = maskIndex;
+    // int index = set._Find_first();
+    // while (index < 64)
+    // {
+    //     // test the index
+    //     if (index == maskIndex)
+    //     {
+    //         break;
+    //     }
+
+    //     // If there was a firstBlocker previously, set it to 0
+    //     if (firstBlocker != maskIndex)
+    //     {
+    //         ldiagMask &= ~(1ULL << firstBlocker);
+    //     }
+    //     else {
+    //         // New blocker only if there exists a 1. otherwise remove it
+    //         firstBlocker = index;
+    //     }
+
+    //     // next
+    //     index = set._Find_next(index);
+    // }
+
+    // // If never changed, add in corner
+    // if (firstBlocker == maskIndex)
+    // {
+    //     ldiagMask |= 1;
+    // }
+    // else {
+    //     // Otherwise add ones between
+    // }
+
+    bitset<64> t2 = ldiagMask;
+    int lastBitIndex = t2._Find_first();
+    int firstBlocker = maskIndex;
+    int row = lastBitIndex / 8;
+    int col = mask.col % 8;
+    while (lastBitIndex < (63 - maskIndex))
+    {
+        // 1 at index
+        firstBlocker = lastBitIndex;
+        lastBitIndex = t2._Find_next(lastBitIndex);
+    }
+
+    // cout << "First blocker: " << firstBlocker << " " << maskIndex << endl;
+    // displayBoard(ldiagMask);
+
+    if (firstBlocker == maskIndex)
+    {
+        bitset<64> temp = ldiags[mask.ldiag];
+        ldiagMask = mask.board | (1 << temp._Find_first());
+    }
+    else
+    {
+        // Set everything below firstblocker to 0 and above to 1
+        // cout << "hmmm" << endl;
+        bitset<64> temp = ldiags[mask.ldiag];
+        int temp2 = 63 - temp._Find_first();
+        row = temp2 / 8;
+        col = temp2 % 8;
+        int bRow = (63 - firstBlocker) / 8;
+        int bCol = (63 - firstBlocker) % 8;
+        bitboard adder = 0;
+        // cout << "hmmm: " << row << " " << bRow << endl;
+        while (row > mask.row && col > mask.col)
+        {
+            // cout << "hmmm" << row << " " << bRow << endl;
+            // displayBoard((1ULL << lastBitIndex));
+            if (row <= bRow)
+            {
+                // Make 1
+                int index = 63 - (row * 8 + col);
+                adder |= (1ULL << index);
+            }
+            row--;
+            col--;
+        }
+        // cout << "adder" << endl;
+        // displayBoard(adder);
+        ldiagMask = adder;
+    }
+
+    // cout << "Final left diag: " << endl;
+    // displayBoard(blockers);
+    // displayBoard(ldiagMask);
+
+    return ldiagMask;
+    // return generateTopLDiag(mask, ldiagMask);
+}
+
+bitboard getBishopLegalMoves(bishopMask mask, bitboard blockers)
+{
+    bitboard andres = mask.board & blockers;
+    return generateLegalLDiag(mask, andres, blockers);
+}
+
 int main()
 {
-    vector<bitboard> masks = generateBishopMasks();
-    findAllBishopMagicNumbers(masks);
-    // unordered_set<bitboard> variations;
-    // generateBlockerVariations(masks[0], 0, variations);
+    vector<bishopMask> masks = generateBishopMasks();
+    unordered_set<bitboard> variations;
+    generateBlockerVariations(masks[0].board, 0, variations);
+    for (auto variation : variations)
+    {
+        displayBoard(getBishopLegalMoves(masks[0], variation));
+        displayBoard(variation);
+        // break;
+    }
+    // findAllBishopMagicNumbers(masks);
     // printUnorderedSet(variations);
     // for (auto i = masks.begin(); i != masks.end(); i++)
     // {
