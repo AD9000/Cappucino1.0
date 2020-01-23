@@ -410,21 +410,6 @@ void printUnorderedSet(unordered_set<T> variations)
     }
 }
 
-void test1(bitboard board, int startIndex, unordered_set<bitboard> &test)
-{
-    for (int i = startIndex; i < 64; i++)
-    {
-        bitboard checker = (1ULL << i);
-        if ((board & checker) > 0)
-        {
-            test.insert(board);
-            test.insert(board & ~checker);
-            test1(board, i + 1, test);
-            test1(board & ~checker, i, test);
-        }
-    }
-}
-
 bitboard findMagicNumber(bitboard rookMask)
 {
     uint64_t x = bitboardMax >> 5;
