@@ -11,10 +11,10 @@ export class App extends React.Component {
         direction="column"
         alignItems="center"
         justify="center"
-        style={{ minHeight: '100vh' }}
+        style={{ minHeight: '100vh', width: '100vw' }}
       >
-        <Grid item xs={3}>
-          <Paper elevation={3}>
+        <Grid item xs={3} style={{ maxWidth: '50%' }}>
+          <Paper elevation={3} style={{ width: '100%' }}>
             <Board />
           </Paper>
         </Grid>

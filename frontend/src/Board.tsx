@@ -149,7 +149,7 @@ export class Board extends React.Component {
       <Table>
         <TableBody>
           {this.state.board.map((row, rIndex) => (
-            <TableRow key={rIndex} style={{ height: '50px' }}>
+            <TableRow key={rIndex} style={{ height: '80px' }}>
               {row.map((cell, index) => (
                 <TableCell
                   key={index}
@@ -162,7 +162,8 @@ export class Board extends React.Component {
                   style={{
                     fontFamily: 'Chess',
                     textAlign: 'center',
-                    width: '50px'
+                    width: '80px',
+                    fontSize: '2.5em'
                   }}
                 >
                   {cell}
