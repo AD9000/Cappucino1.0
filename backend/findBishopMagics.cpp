@@ -240,6 +240,45 @@ bitboard generateTopLDiag(bishopMask mask, bitboard andres, bitboard blockers)
 
     bitset<64> ldiag = ldiags[mask.ldiag];
     bool firstBlocker = false;
+    int row = mask.row + 1;
+    int col = mask.col + 1;
+    // displayBoard(rows[mask.row] & columns[mask.col]);
+    while (row < 8 && col < 8)
+    {
+        // cout << "row: " << row << ", col: " << col << endl;
+        bitboard adder = rows[row] & columns[col];
+        if ((adder & blockers) > 0 && !firstBlocker)
+        {
+            firstBlocker = true;
+            andres |= adder;
+            row++;
+            col++;
+            continue;
+        }
+
+        if (firstBlocker)
+        {
+            // set to 0
+            andres &= ~adder;
+        }
+        else
+        {
+            andres |= adder;
+        }
+        row++;
+        col++;
+    }
+
+    return andres;
+}
+
+bitboard generateLegalLDiag(bishopMask mask, bitboard blockers)
+{
+    bitboard andres = mask.board & ldiags[mask.ldiag];
+    int maskIndex = mask.row * 8 + mask.col;
+
+    bitset<64> ldiag = ldiags[mask.ldiag];
+    bool firstBlocker = false;
     int row = mask.row - 1;
     int col = mask.col - 1;
     // displayBoard(rows[mask.row] & columns[mask.col]);
@@ -268,62 +307,8 @@ bitboard generateTopLDiag(bishopMask mask, bitboard andres, bitboard blockers)
         row--;
         col--;
     }
-
-    return andres;
-}
-
-bitboard generateLegalLDiag(bishopMask mask, bitboard blockers)
-{
-    bitboard ldiag = ldiags[mask.ldiag];
-
-    int maskIndex = mask.row * 8 + mask.col;
-    bitboard ldiagMask = (mask.board & ldiags[mask.ldiag]);
-    bitset<64> set = ldiags[mask.ldiag];
-    bitset<64> t2 = ldiagMask & blockers;
-    int lastBitIndex = t2._Find_first();
-    int firstBlocker = maskIndex;
-    int row = lastBitIndex / 8;
-    int col = mask.col % 8;
-    while (lastBitIndex < (63 - maskIndex))
-    {
-        // 1 at index
-        firstBlocker = lastBitIndex;
-        lastBitIndex = t2._Find_next(lastBitIndex);
-    }
-
-    if (firstBlocker == (63 - maskIndex))
-    {
-        bitset<64> temp = ldiags[mask.ldiag];
-        ldiagMask = ldiagMask | (1 << temp._Find_first());
-    }
-    else
-    {
-        // Set everything below firstblocker to 0 and above to 1
-        // cout << "hmmm" << endl;
-        bitset<64> temp = ldiags[mask.ldiag];
-        int temp2 = 63 - temp._Find_first();
-        row = temp2 / 8;
-        col = temp2 % 8;
-        int bRow = (63 - firstBlocker) / 8;
-        int bCol = (63 - firstBlocker) % 8;
-        bitboard adder = 0;
-        // cout << "hmmm: " << row << " " << bRow << endl;
-        while (row > mask.row && col > mask.col)
-        {
-            if (row <= bRow)
-            {
-                // Make 1
-                int index = 63 - (row * 8 + col);
-                adder |= (1ULL << index);
-            }
-            row--;
-            col--;
-        }
-        ldiagMask = adder;
-    }
-
     // return ldiagMask;
-    return generateTopLDiag(mask, ldiagMask, blockers);
+    return generateTopLDiag(mask, andres, blockers);
 }
 
 bitboard generateTopRDiag(bishopMask mask, bitboard andres, bitboard blockers)
@@ -333,14 +318,59 @@ bitboard generateTopRDiag(bishopMask mask, bitboard andres, bitboard blockers)
     int maskIndex = mask.row * 8 + mask.col;
     bitset<64> rdiag = rdiags[mask.rdiag];
     bool firstBlocker = false;
+    int row = mask.row + 1;
+    int col = mask.col - 1;
+    // cout << "row: " << row << ", col: " << col << endl;
+    // displayBoard(rows[mask.row] & columns[mask.col]);
+    while (row < 8 && col >= 0)
+    {
+        // cout << "row: " << row << ", col: " << col << endl;
+        bitboard adder = rows[row] & columns[col];
+        if ((adder & blockers) > 0 && !firstBlocker)
+        {
+            firstBlocker = true;
+            andres |= adder;
+            row++;
+            col--;
+            continue;
+        }
+
+        if (firstBlocker)
+        {
+            // set to 0
+            andres &= ~adder;
+        }
+        else
+        {
+            andres |= adder;
+        }
+        row++;
+        col--;
+    }
+
+    return andres;
+}
+
+bitboard getLegalRDiag(bishopMask mask, bitboard blockers)
+{
+    bitboard andres = mask.board & rdiags[mask.rdiag];
+    // std::cout << "start: " << endl;
+    // displayBoard(andres);
+    int maskIndex = mask.row * 8 + mask.col;
+    bitset<64> rdiag = rdiags[mask.rdiag];
+    bool firstBlocker = false;
     int row = mask.row - 1;
     int col = mask.col + 1;
+
+    // displayBoard(andres);
     // cout << "row: " << row << ", col: " << col << endl;
     // displayBoard(rows[mask.row] & columns[mask.col]);
     while (row >= 0 && col < 8)
     {
         // cout << "row: " << row << ", col: " << col << endl;
         bitboard adder = rows[row] & columns[col];
+        // cout << "Adding..." << endl;
+        // displayBoard(adder);
         if ((adder & blockers) > 0 && !firstBlocker)
         {
             firstBlocker = true;
@@ -362,68 +392,9 @@ bitboard generateTopRDiag(bishopMask mask, bitboard andres, bitboard blockers)
         row--;
         col++;
     }
-
-    return andres;
-}
-
-bitboard getLegalRDiag(bishopMask mask, bitboard blockers)
-{
-    bitboard rdiag = rdiags[mask.rdiag];
-
-    int maskIndex = mask.row * 8 + mask.col;
-    bitboard rdiagMask = (mask.board & rdiags[mask.rdiag]);
-    bitset<64> t2 = rdiagMask & blockers;
-    int lastBitIndex = t2._Find_first();
-    int firstBlocker = 63 - maskIndex;
-    int row = lastBitIndex / 8;
-    int col = mask.col % 8;
-    while (lastBitIndex < (63 - maskIndex))
-    {
-        // 1 at index
-        firstBlocker = lastBitIndex;
-        lastBitIndex = t2._Find_next(lastBitIndex);
-    }
-
-    if (firstBlocker == (63 - maskIndex))
-    {
-        bitset<64> temp = rdiags[mask.rdiag];
-        // displayBoard(rdiagMask);
-        // displayBoard((1ULL << firstBlocker));
-        rdiagMask = rdiagMask | (1 << temp._Find_first());
-        // displayBoard(rdiagMask);
-    }
-    else
-    {
-        // Set everything below firstblocker to 0 and above to 1
-        // cout << "hmmm" << endl;
-        bitset<64> temp = rdiags[mask.rdiag];
-        // cout << temp << endl;
-        int temp2 = 63 - temp._Find_first();
-        row = temp2 / 8;
-        col = temp2 % 8;
-        int bRow = (63 - firstBlocker) / 8;
-        int bCol = (63 - firstBlocker) % 8;
-        bitboard adder = 0;
-        // cout << "hmmm: " << temp2 << " " << mask.col << endl;
-        while (row > mask.row && col < mask.col)
-        {
-
-            // cout << "hmmm: " << row << " " << bRow << endl;
-            if (row <= bRow)
-            {
-                // Make 1
-                int index = 63 - (row * 8 + col);
-                adder |= (1ULL << index);
-                // cout << "Alg: " << endl;
-                // displayBoard(adder);
-            }
-            row--;
-            col++;
-        }
-        rdiagMask = adder;
-    }
-
-    return generateTopRDiag(mask, rdiagMask, blockers);
+    // cout << "First blocker: " << firstBlocker << endl;
+    // displayBoard(andres);
+    return generateTopRDiag(mask, andres, blockers);
 }
 
 bitboard getBishopLegalMoves(bishopMask mask, bitboard blockers)
