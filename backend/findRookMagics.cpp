@@ -10,6 +10,14 @@
 using namespace std;
 using namespace masks;
 
+typedef struct _rookMask
+{
+    int row;
+    int col;
+    int index;
+    bitboard board;
+} rookMask;
+
 void displayBoard(bitboard board)
 {
     bitboard mask = 1ULL << 63;
@@ -32,45 +40,49 @@ void displayBoard(bitboard board)
     printf("\n");
 }
 
-vector<uint64_t> generateRookPossibleMovesMasks()
+vector<rookMask> generateRookPossibleMovesMasks()
 {
     // For every index on the bitboard
-    vector<uint64_t> masks(64);
+    vector<rookMask> masks(64);
     for (int row = 0; row < 8; row++)
     {
         for (int col = 0; col < 8; col++)
         {
             // Mask
             uint8_t index = row * 8 + col;
-            masks[index] = rows[row] ^ columns[col];
+            masks[index].row = row;
+            masks[index].col = col;
+            masks[index].index = index;
+            bitboard board = rows[row] ^ columns[col];
             // Assuming that the rook is not on the edge, remove edges
             if (row && row != 7)
             {
-                masks[index] &= ~rows[0];
-                masks[index] &= ~rows[7];
+                board &= ~rows[0];
+                board &= ~rows[7];
             }
             else if (row)
             {
-                masks[index] &= ~rows[0];
+                board &= ~rows[0];
             }
             else
             {
-                masks[index] &= ~rows[7];
+                board &= ~rows[7];
             }
 
             if (col && col != 7)
             {
-                masks[index] &= ~columns[0];
-                masks[index] &= ~columns[7];
+                board &= ~columns[0];
+                board &= ~columns[7];
             }
             else if (col)
             {
-                masks[index] &= ~columns[0];
+                board &= ~columns[0];
             }
             else
             {
-                masks[index] &= ~columns[7];
+                board &= ~columns[7];
             }
+            masks[index].board = board;
         }
     }
 
@@ -167,214 +179,126 @@ int findColumn(bitboard board)
 //     }
 // }
 
-bitboard getTop(int col, int row, bitboard blockers, bitboard andres)
+bitboard getTop(rookMask mask, bitboard blockers, bitboard andres)
 {
-    // Get the row and column of blockers
-    int topRow = row;
-    for (int i = row - 1; i > 0; i++)
+    // search for firstblocker
+    bitboard res = 0;
+    bitboard colMask = mask.board & columns[mask.col] & blockers;
+    int row = mask.row + 1;
+    bool firstblocker = false;
+    while (row < 8)
     {
-        if ((rows[i] & blockers) > 0)
+        bitboard checker = rows[row] & columns[mask.col];
+        if (!firstblocker)
         {
-            topRow = i;
-            break;
+            if (checker & colMask)
+            {
+                firstblocker = true;
+            }
+            // Convert to 1 if no blocker
+            res |= checker;
         }
+        row++;
     }
 
-    if (topRow == row)
-    {
-        // Make everything above row 1
-        int sh = ((8 - row) * 8) - 1;
-        bitboard shift = bitboardMax << sh;
-        shift = shift << 1;
-        andres |= columns[col] & shift;
-    }
-    else if (topRow < row)
-    {
-        // Clear columns above toprow
-        andres &= bitboardMax >> (topRow * 8);
-
-        // Set rows between toprow and row to 1
-        int sh = ((8 - row) * 8) - 1;
-        bitboard shift = bitboardMax << sh;
-        shift = shift << 1;
-        andres |= columns[col] & (shift & (bitboardMax >> (topRow * 8)));
-    }
-
-    // printf("top half\n");
-    // displayBoard(andres);
-    return andres;
+    return res;
 }
 
-bitboard getBottom(int row, int col, bitboard blockers, bitboard andres)
+bitboard getBottom(rookMask mask, bitboard blockers)
 {
-    // Get the row and column of blockers
-    int bottomRow = row;
-    for (int i = row + 1; i < 7; i++)
+    // search for firstblocker
+    bitboard res = 0;
+    bitboard colMask = mask.board & columns[mask.col] & blockers;
+    int row = mask.row - 1;
+    bool firstblocker = false;
+    while (row >= 0)
     {
-        if ((rows[i] & blockers) > 0)
+        bitboard checker = rows[row] & columns[mask.col];
+        if (!firstblocker)
         {
-            bottomRow = i;
-            break;
+            if (checker & colMask)
+            {
+                firstblocker = true;
+            }
+            // Convert to 1 if no blocker
+            res |= checker;
         }
+        row--;
     }
 
-    if (bottomRow == row)
-    {
-        // Set everything below row to 1
-        if (row != 7)
-        {
-            andres |= columns[col] & (bitboardMax >> ((row + 1) * 8));
-        }
-    }
-    else if (bottomRow > row)
-    {
-        // Clear columns below bottomrow
-        andres &= bitboardMax << ((7 - bottomRow) * 8);
-
-        // Set rows between bottomrow and row to 1
-        bitboard bottomShift = (bitboardMax << ((7 - bottomRow) * 8));
-        // displayBoard(bottomShift);
-        andres |= columns[col] & ((bitboardMax >> ((row + 1) * 8)) & bottomShift);
-    }
-
-    // printf("bottom half\n");
-    // displayBoard(andres);
-    return andres;
+    return res;
 }
 
-bitboard getLegalRowBitboard(int row, int col, bitboard mask, bitboard blockers)
+bitboard getLegalRowBitboard(rookMask mask, bitboard blockers)
 {
-    bitboard andRes = mask & blockers;
+    bitboard andRes = mask.board & blockers;
     // bitboard topCol = getTopColBoard(andRes, row, col);
     bitboard rowBitBoard = andRes;
 
-    return getTop(col, row, blockers, getBottom(row, col, blockers, andRes));
+    return getTop(mask, blockers, getBottom(mask, blockers));
 }
 
-bitboard getRight(int col, int row, bitboard blockers, bitboard andres)
+bitboard getRight(rookMask mask, bitboard blockers)
 {
-    // Get the row and column of blockers
-    int rightColumn = col;
-    for (int i = col + 1; i < 7; i++)
+    // search for firstblocker
+    bitboard res = 0;
+    bitboard rowMask = mask.board & rows[mask.row] & blockers;
+    int col = mask.col - 1;
+    bool firstblocker = false;
+    while (col >= 0)
     {
-        if ((columns[i] & blockers) > 0)
+        bitboard checker = rows[mask.row] & columns[col];
+        if (!firstblocker)
         {
-            rightColumn = i;
-            break;
+            if (checker & rowMask)
+            {
+                firstblocker = true;
+            }
+            // Convert to 1 if no blocker
+            res |= checker;
         }
+        col--;
     }
 
-    printf("Right Column: %d, row: %d\n", rightColumn, row);
-
-    if (rightColumn == col)
-    {
-        int rowShift = ((7 + row) % 8) * 8;
-        // Make every column 1 to the right of col
-        bitboard adder = 0;
-        for (int i = col + 1; i < 8; i++)
-        {
-            adder |= columns[i];
-        }
-
-        andres |= adder & rows[row];
-    }
-    else if (rightColumn > col)
-    {
-        // Clear column to the right of rightcolumn
-        bitboard clearer = 0;
-        for (int i = rightColumn + 1; i < 8; i++)
-        {
-            clearer |= columns[i];
-        }
-        andres &= ~clearer;
-
-        bitboard adder = 0;
-        // Make everything between rightcolumn and col 1
-        for (int i = col + 1; i < rightColumn; i++)
-        {
-            adder |= columns[i];
-        }
-
-        andres |= adder & rows[row];
-    }
-
-    // printf("right half\n");
-    // displayBoard(andres);
-    return andres;
+    return res;
 }
 
-bitboard getLeft(int col, int row, bitboard blockers, bitboard andres)
+bitboard getLeft(rookMask mask, bitboard blockers)
 {
-    // Get the row and column of blockers
-    int leftColumn = col;
-    for (int i = col - 1; i > 0; i++)
+    // search for firstblocker
+    bitboard res = 0;
+    bitboard rowMask = mask.board & rows[mask.row] & blockers;
+    int col = mask.col + 1;
+    bool firstblocker = false;
+    while (col < 8)
     {
-        if ((columns[i] & blockers) > 0)
+        bitboard checker = rows[mask.row] & columns[col];
+        if (!firstblocker)
         {
-            leftColumn = i;
-            break;
+            if (checker & rowMask)
+            {
+                firstblocker = true;
+            }
+            // Convert to 1 if no blocker
+            res |= checker;
         }
+        col++;
     }
 
-    // printf("Left Column: %d\n", leftColumn);
-
-    if (leftColumn == col && col != 0)
-    {
-        // Set everything to the left of col to 1
-        int rowShift = row * 8;
-        // Make every column 1 to the right of col
-        for (int i = 0; i < col; i++)
-        {
-            andres |= (1 << (rowShift + i));
-        }
-    }
-    else if (leftColumn < col)
-    {
-        // Clear column left of leftcolumn
-        bitboard clearer = 0;
-        for (int i = 0; i < leftColumn; i++)
-        {
-            clearer |= columns[i];
-        }
-        andres &= ~clearer;
-
-        // Add 1 ones between leftcolumn and col
-        int rowShift = row * 8;
-        // Make every column 1 to the right of col
-        for (int i = leftColumn + 1; i < col; i++)
-        {
-            andres |= (1 << (rowShift + i));
-        }
-    }
-
-    // printf("half\n");
-    // displayBoard(andres);
-    return andres;
+    return res;
 }
 
-bitboard getLegalColumnBitboard(int row, int col, bitboard mask, bitboard blockers)
+bitboard getLegalColumnBitboard(rookMask mask, bitboard blockers)
 {
-    bitboard andRes = mask & blockers;
-
-    // bitboard leftCol = getTopColBoard(andRes, row, col);
-    bitboard columnBitBoard = andRes;
-
-    // printf("Together\n");
-    // bitboard x = getLeft(col, row, blockers, andRes) & getRight(col, row, blockers, andRes);
-    // displayBoard(x);
-    bitboard left = getLeft(col, row, blockers, andRes);
-    // displayBoard(left);
-    // displayBoard(right);
-
-    return getRight(col, row, blockers, left);
+    return getLeft(mask, blockers) | getRight(mask, blockers);
 }
 
-bitboard generateLegalMoveBitboard(bitboard mask, bitboard blockers)
+bitboard generateLegalMoveBitboard(rookMask mask, bitboard blockers)
 {
-    int row = findRow(mask);
-    int column = findColumn(mask);
+    int row = findRow(mask.board);
+    int column = findColumn(mask.board);
     // bitboard legalRow = getLegalRowBitboard(row, column, mask, blockers);
-    return ((getLegalRowBitboard(row, column, mask, blockers) & columns[column]) | (rows[row] & getLegalColumnBitboard(row, column, mask, blockers)));
+    return ((getLegalRowBitboard(mask, blockers) & columns[column]) | (rows[row] & getLegalColumnBitboard(mask, blockers)));
 }
 
 void generateAllPossibleRookMoves(uint64_t mask)
@@ -383,9 +307,9 @@ void generateAllPossibleRookMoves(uint64_t mask)
 
 void generateRookMagics(unordered_map<uint16_t, bitboard> &rookMagics)
 {
-    vector<uint64_t> masks = generateRookPossibleMovesMasks();
+    vector<rookMask> masks = generateRookPossibleMovesMasks();
 
-    for (uint64_t mask : masks)
+    for (rookMask mask : masks)
     {
         // Generating all possible blocker variations for the
         unordered_set<bitboard> variations;
@@ -395,7 +319,7 @@ void generateRookMagics(unordered_map<uint16_t, bitboard> &rookMagics)
 
     for (int8_t i = 0; i < 64; i++)
     {
-        displayBoard(masks[i]);
+        displayBoard(masks[i].board);
     }
 }
 
@@ -528,11 +452,10 @@ int main()
 
     // printUnorderedSet(variations);
 
-    vector<uint64_t> rmasks = generateRookPossibleMovesMasks();
+    vector<rookMask> rmasks = generateRookPossibleMovesMasks();
     // displayBoard
 
-    findAllRookMagicNumbers(rmasks);
-    // findAllBishopMagicNumbers(bmasks);
+    // findAllRookMagicNumbers(rmasks);
     // testMagicNumber(masks[0], 6589861800102187713);
 
     // unordered_set<bitboard> v;
@@ -541,15 +464,17 @@ int main()
 
     // printUnorderedSet(variations);
     // int i = 0;
-    // for (bitboard variation : variations)
-    // {
-    //     // displayBoard(masks[0]);
-    //     // displayBoard(variation);
-    //     // displayBoard(getLegalRowBitboard(findRow(masks[0]), findColumn(masks[0]), masks[0], variation));
-    //     // displayBoard(getLegalColumnBitboard(findRow(masks[0]), findColumn(masks[0]), masks[0], variation));
-    //     // bitboard legalBoard = generateLegalMoveBitboard(masks[0], variation);
-    //     // break;
-    // }
+    unordered_set<bitboard> variations;
+    generateBlockerVariations(rmasks[0].board, 0, variations);
+    for (bitboard variation : variations)
+    {
+        displayBoard(rmasks[0].board);
+        displayBoard(variation);
+        displayBoard(getLegalRowBitboard(rmasks[0], variation));
+        displayBoard(getLegalColumnBitboard(rmasks[0], variation));
+        displayBoard(generateLegalMoveBitboard(rmasks[0], variation));
+        // break;
+    }
 
     // for (auto i = masks.begin(); i != masks.end(); i++)
     // {
