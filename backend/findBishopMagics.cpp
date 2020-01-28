@@ -1,23 +1,14 @@
 #include <iostream>
-#include <vector>
 #include <unordered_set>
 #include <random>
 #include <fstream>
 #include <bitset>
-#include <string>
 
 #include "boards/masks.hpp"
+#include "findBishopMagics.hpp"
+#include "magicnumbers.hpp"
 using namespace std;
 using namespace masks;
-
-typedef struct _bishopMask
-{
-    int row;
-    int col;
-    int ldiag;
-    int rdiag;
-    bitboard board;
-} bishopMask;
 
 void displayBoard(bitboard board)
 {
@@ -148,7 +139,7 @@ bitboard findMagicNumber(bitboard bishopMask)
     uint64_t counter = 0;
     unordered_set<bitboard> variations;
     generateBlockerVariations(bishopMask, 0, variations);
-    // For each possible variation for a rook position,
+    // For each possible variation for a bishop position,
     // Test number
     unordered_set<uint64_t> generated;
     uint64_t hasher;
@@ -218,19 +209,22 @@ bitboard findMagicNumber(bitboard bishopMask)
     return hasher;
 }
 
-void findAllBishopMagicNumbers(vector<bishopMask> masks)
+vector<uint64_t> findAllBishopMagicNumbers(vector<bishopMask> masks)
 {
-    uint16_t magicNumbers[64] = {0};
+    vector<uint64_t> magicNumbers(64, 0);
     ofstream myfile;
     myfile.open("bishopMagics.txt");
+    myfile << "bitboard bishopMagics[] = { ";
     for (int i = 0; i < masks.size(); i++)
     {
-        bitboard magicNumber = findMagicNumber(masks[i].board);
+        uint64_t magicNumber = findMagicNumber(masks[i].board);
         magicNumbers[i] = magicNumber;
 
-        myfile << hex << magicNumber << endl;
+        myfile << "0x" << hex << magicNumber << "ULL, ";
     }
     myfile.close();
+
+    return magicNumbers;
 }
 
 bitboard generateTopLDiag(bishopMask mask, bitboard andres, bitboard blockers)
@@ -399,13 +393,55 @@ bitboard getLegalRDiag(bishopMask mask, bitboard blockers)
 
 bitboard getBishopLegalMoves(bishopMask mask, bitboard blockers)
 {
-    bitboard andres = mask.board & blockers;
     return generateLegalLDiag(mask, blockers) | getLegalRDiag(mask, blockers);
 }
 
 int main()
 {
+    vector<vector<bitboard>> res;
     vector<bishopMask> masks = generateBishopMasks();
+    int i = 0;
+    for (bishopMask mask : masks)
+    {
+        vector<bitboard> posRes;
+        bitboard hasher = magicNumbers::bishopMagics[i];
+        unordered_set<bitboard> variations;
+        generateBlockerVariations(mask.board, 0, variations);
+        for (bitboard variation : variations)
+        {
+            bitboard l = getBishopLegalMoves(mask, variation);
+            int index = (variation * hasher) >> 51;
+            if (index + 1 > posRes.size())
+            {
+                posRes.resize(index + 1);
+            }
+            posRes[index] = l;
+        }
+        // cout << posRes.size() << endl;
+        res.push_back(posRes);
+        i++;
+    }
+    // cout << "Res: " << res.size() << endl;
+
+    for (bitboard b : res[0])
+    {
+        cout << b << endl;
+    }
+
+    ofstream myfile;
+    myfile.open("bishopHash.txt");
+    myfile << "bitboard bishopLegals[][] = { ";
+    for (auto pos : res)
+    {
+        myfile << "{";
+        for (bitboard b : pos)
+        {
+            myfile << "0x" << hex << b << "ULL, ";
+        }
+        myfile << "}, " << endl;
+    }
+    myfile.close();
+    // vector<bishopMask> masks = generateBishopMasks();
     // for (auto mask : masks)
     // {
     //     unordered_set<bitboard> variations;
@@ -419,24 +455,24 @@ int main()
     //     }
     // }
 
-    unordered_set<bitboard> variations;
-    generateBlockerVariations(masks[28].board, 0, variations);
-    int i = 0;
-    for (auto variation : variations)
-    {
-        cout << "Mask: " << endl;
-        displayBoard(masks[28].board);
-        cout << "Legal: " << endl;
-        displayBoard(getBishopLegalMoves(masks[28], variation));
-        cout << "variation: " << endl;
-        displayBoard(variation);
-        // if (i == 3)
-        // {
-        //     break;
-        // }
-        // i++;
-        // break;
-    }
+    // unordered_set<bitboard> variations;
+    // generateBlockerVariations(masks[28].board, 0, variations);
+    // int i = 0;
+    // for (auto variation : variations)
+    // {
+    //     cout << "Mask: " << endl;
+    //     displayBoard(masks[28].board);
+    //     cout << "Legal: " << endl;
+    //     displayBoard(getBishopLegalMoves(masks[28], variation));
+    //     cout << "variation: " << endl;
+    //     displayBoard(variation);
+    //     // if (i == 3)
+    //     // {
+    //     //     break;
+    //     // }
+    //     // i++;
+    //     // break;
+    // }
     // findAllBishopMagicNumbers(masks);
     // printUnorderedSet(variations);
     // for (auto i = masks.begin(); i != masks.end(); i++)

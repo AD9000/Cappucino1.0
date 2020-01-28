@@ -1,23 +1,14 @@
 #include <iostream>
-#include <vector>
 #include <random>
-#include <cmath>
 #include <bitset>
 #include <unordered_set>
 #include <unordered_map>
 #include <fstream>
+
 #include "boards/masks.hpp"
-using namespace std;
+#include "findRookMagics.hpp"
+#include "magicnumbers.hpp"
 using namespace masks;
-
-typedef struct _rookMask
-{
-    int row;
-    int col;
-    int index;
-    bitboard board;
-} rookMask;
-
 void displayBoard(bitboard board)
 {
     bitboard mask = 1ULL << 63;
@@ -129,55 +120,6 @@ uint64_t checkMagicNumber(uint64_t number, uint8_t bits)
     // Check if each blocker fits in the first
     return 0;
 }
-
-// Bitwise operations for ultimate speed
-bool isCountGreaterThan1(bitboard board)
-{
-    board &= board - 1;
-    return board > 0;
-}
-
-int findRow(bitboard board)
-{
-    int len = 8;
-    for (int i = 0; i < len; i++)
-    {
-        if (isCountGreaterThan1(board & rows[i]))
-        {
-            return i;
-        }
-    }
-}
-
-int findColumn(bitboard board)
-{
-    int len = 8;
-    for (int i = 0; i < len; i++)
-    {
-        if (isCountGreaterThan1(board & columns[i]))
-        {
-            return i;
-        }
-    }
-}
-
-// bitboard getTopColBoard(bitboard andRes, int row, int col) {
-//     bitboard topBoard = andRes;
-//     bool check = true;
-//     for (int i = row - 1; i > 0; i--) {
-//         int pos = i * 8 + col;
-//         if (check) {
-//             // Check if zero
-//             if ((topBoard & ~(1 << pos)) == 0) {
-//                 check = true;
-//             }
-//         }
-//         else {
-//             // Set to 0
-
-//         }
-//     }
-// }
 
 bitboard getTop(rookMask mask, bitboard blockers, bitboard andres)
 {
@@ -295,10 +237,7 @@ bitboard getLegalColumnBitboard(rookMask mask, bitboard blockers)
 
 bitboard generateLegalMoveBitboard(rookMask mask, bitboard blockers)
 {
-    int row = findRow(mask.board);
-    int column = findColumn(mask.board);
-    // bitboard legalRow = getLegalRowBitboard(row, column, mask, blockers);
-    return ((getLegalRowBitboard(mask, blockers) & columns[column]) | (rows[row] & getLegalColumnBitboard(mask, blockers)));
+    return ((getLegalRowBitboard(mask, blockers) | getLegalColumnBitboard(mask, blockers)));
 }
 
 void generateAllPossibleRookMoves(uint64_t mask)
@@ -338,6 +277,7 @@ bitboard findMagicNumber(bitboard rookMask)
 {
     uint64_t x = bitboardMax >> 5;
     uint64_t counter = 0;
+    vector<uint16_t> indices;
     unordered_set<bitboard> variations;
     generateBlockerVariations(rookMask, 0, variations);
     // For each possible variation for a rook position,
@@ -356,32 +296,32 @@ bitboard findMagicNumber(bitboard rookMask)
         else
         {
             generated.insert(hasher);
-            if (generated.size() % 10000000000 == 0)
+            if (generated.size() % 10000000000UL == 0)
             {
                 printf("%lu, %lu\n", hasher, generated.size());
             }
         }
         unordered_set<uint16_t> indices;
+        // cout << "len: " << indices.size() << endl;
         for (bitboard variation : variations)
         {
-            uint16_t index = (hasher * variation) >> 48;
-            if (indices.find(index) != indices.end())
+            uint16_t index = (hasher * variation) >> 50;
+            if (!indices.insert(index).second)
             {
+                cout << "Broke at : " << indices.size() << endl;
                 break;
-            }
-            else
-            {
-                indices.insert(index);
             }
         }
         if (indices.size() == variations.size())
         {
-            cout << indices.size() << endl;
-            cout << variations.size() << endl;
-            cout << "Start" << endl;
-            for (uint16_t index : indices)
+            // cout << indices.size() << endl;
+            // cout << variations.size() << endl;
+            // cout << "Start" << endl;
+            vector<uint16_t> cp;
+            cp.insert(cp.end(), indices.begin(), indices.end());
+            for (uint16_t index : cp)
             {
-                cout << index << endl;
+                cout << "index: " << index << endl;
             }
             check = true;
             break;
@@ -405,9 +345,12 @@ bitboard findMagicNumber(bitboard rookMask)
         // }
 
         // myfile.close();
+        return hasher;
     }
-
-    return hasher;
+    else
+    {
+        return 0;
+    }
 }
 
 void testMagicNumber(bitboard mask, bitboard magic)
@@ -428,68 +371,75 @@ void testMagicNumber(bitboard mask, bitboard magic)
     cout << indices.size() << endl;
 }
 
-void findAllRookMagicNumbers(vector<uint64_t> masks)
+vector<uint64_t> findAllRookMagicNumbers(vector<rookMask> masks)
 {
-    uint16_t magicNumbers[64] = {0};
+    vector<uint64_t> magicNumbers(64, 0);
     ofstream myfile;
     myfile.open("rookMagics.txt");
+    myfile << "bitboard rookMagics = {";
     for (int i = 0; i < masks.size(); i++)
     {
-        bitboard magicNumber = findMagicNumber(masks[i]);
+        bitboard magicNumber = findMagicNumber(masks[i].board);
         magicNumbers[i] = magicNumber;
 
-        myfile << hex << magicNumber << endl;
+        if (magicNumber == 0)
+        {
+            cout << "oof" << endl;
+            break;
+        }
+
+        myfile << "0x" << hex << magicNumber << "ULL, ";
     }
     myfile.close();
+    return magicNumbers;
 }
 
 int main()
 {
-    printf("The numbers are:\n");
-    // unordered_map<uint16_t, bitboard> rookMagics;
-    // generateRookMagics(rookMagics);
-    cout << "starting" << endl;
-
-    // printUnorderedSet(variations);
-
-    vector<rookMask> rmasks = generateRookPossibleMovesMasks();
-    // displayBoard
-
-    // findAllRookMagicNumbers(rmasks);
-    // testMagicNumber(masks[0], 6589861800102187713);
-
-    // unordered_set<bitboard> v;
-    // test1(masks[0], 0, v);
-    // printUnorderedSet(v);
-
-    // printUnorderedSet(variations);
-    // int i = 0;
-    unordered_set<bitboard> variations;
-    generateBlockerVariations(rmasks[0].board, 0, variations);
-    for (bitboard variation : variations)
+    // findAllRookMagicNumbers(generateRookPossibleMovesMasks());
+    vector<vector<bitboard>> res;
+    vector<rookMask> masks = generateRookPossibleMovesMasks();
+    int i = 0;
+    for (rookMask mask : masks)
     {
-        displayBoard(rmasks[0].board);
-        displayBoard(variation);
-        displayBoard(getLegalRowBitboard(rmasks[0], variation));
-        displayBoard(getLegalColumnBitboard(rmasks[0], variation));
-        displayBoard(generateLegalMoveBitboard(rmasks[0], variation));
-        // break;
+        vector<bitboard> posRes;
+        bitboard hasher = magicNumbers::rookMagics[i];
+        unordered_set<bitboard> variations;
+        generateBlockerVariations(mask.board, 0, variations);
+        for (bitboard variation : variations)
+        {
+            bitboard l = generateLegalMoveBitboard(mask, variation);
+            int index = (variation * hasher) >> 50;
+            if (index + 1 > posRes.size())
+            {
+                posRes.resize(index + 1);
+            }
+            posRes[index] = l;
+        }
+        // cout << posRes.size() << endl;
+        res.push_back(posRes);
+        i++;
+    }
+    // cout << "Res: " << res.size() << endl;
+
+    for (bitboard b : res[0])
+    {
+        cout << b << endl;
     }
 
-    // for (auto i = masks.begin(); i != masks.end(); i++)
+    // ofstream myfile;
+    // myfile.open("rookHash.txt");
+    // myfile << "bitboard rookLegals[][] = { ";
+    // for (auto pos : res)
     // {
-    //     displayBoard(*i);
+    //     myfile << "{";
+    //     for (bitboard b : pos)
+    //     {
+    //         myfile << "0x" << hex << b << "ULL, ";
+    //     }
+    //     myfile << "}, " << endl;
     // }
-    // displayBoard(generateLegalMoveBitboard())
+    // myfile.close();
+
     return 0;
 }
-
-// int main()
-// {
-//     // printf("The numbers are:\n");
-//     // generateRookMagics();
-//     uint64_t x = 283242394;
-//     displayBoard(x);
-//     asm("bsf &x x");
-//     return 0;
-// }

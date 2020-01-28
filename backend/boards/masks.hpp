@@ -1,4 +1,5 @@
-
+#ifndef MASKS_H
+#define MASKS_H
 typedef unsigned long long bitboard;
 
 namespace masks
@@ -74,3 +75,5 @@ const bitboard rdiag15 = 1ULL;
 
 const bitboard rdiags[] = {rdiag1, rdiag2, rdiag3, rdiag4, rdiag5, rdiag6, rdiag7, rdiag8, rdiag9, rdiag10, rdiag11, rdiag12, rdiag13, rdiag14, rdiag15};
 }; // namespace masks
+
+#endif
