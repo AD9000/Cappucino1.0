@@ -24,3 +24,6 @@
 
 # test.cpp for testing
 test.cpp
+
+# Ignore processessed hpp files
+*.hpp.gch
