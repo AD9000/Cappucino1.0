@@ -1,6 +1,7 @@
 #ifndef BOARD_HPP
 #define BOARD_HPP
 
-void displayAll(chessBoard board);
+// Could make this a base class
+ChessBoard createBoard();
 
 #endif
