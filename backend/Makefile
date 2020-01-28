@@ -1,28 +1,28 @@
 BOARDDIR=boards
+BITBOARDDIR=$(BOARDDIR)/bitboard
 
 CC=g++
 
-all: rfind bfind engine
-
-.PHONY: findRookMagics
-rfind: findRookMagics.cpp $(BOARDDIR)/masks.hpp
-	$(CC) -o rfind findRookMagics.cpp
-
-.PHONY: findBishopMagics
-bfind: findBishopMagics.cpp $(BOARDDIR)/masks.hpp
-	$(CC) -o bfind findBishopMagics.cpp
+all: engine
 
 .PHONY: mainengine
-engine:	engine.cpp 
-	$(CC) -o engine engine.cpp
+engine: engine.o bitboard.o
 
-.PHONY: boards
-$(BOARDDIR)/board.o: $(BOARDDIR)/board.hpp $(BOARDDIR)/bitboard.hpp $(BOARDDIR)/bitboard.cpp
-	+$(MAKE) -C boards
+engine.o: engine.cpp 
+	$(CC) -c engine.cpp
+
+bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp
+	$(CC) -c $(BITBOARDDIR)/bitboard.hpp $(BITBOARDDIR)/bitboard.cpp
+
+# .PHONY: boards
+# $(BOARDDIR)/board.o: $(BOARDDIR)/board.hpp $(BOARDDIR)/bitboard.hpp $(BOARDDIR)/bitboard.cpp
+# 	+$(MAKE) -C boards
 
 
 .PHONY: clean
 clean:
+	find . -type f -executable -delete
+	rm -f *.txt
 	rm -f $(BOARDDIR)/*.o
 	rm -f *.o
 	rm -f *.out
