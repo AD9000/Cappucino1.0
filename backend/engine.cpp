@@ -43,8 +43,9 @@ void checkQuit(string input)
     }
 }
 
-bool checkInput(string move)
+pair<bool, Move> getMove(string move)
 {
+    unordered_set<char> PieceValues({'k', 'q', 'b', 'n', 'r', 'p'});
     bool check = true;
     if (move.size() != 5)
     {
@@ -69,40 +70,58 @@ bool checkInput(string move)
     {
         tryAgain();
     }
+    if (check)
+    {
+        Move pieceMove((PieceType)move[0], move[1], move[2], move[3], move[4]);
+        return make_pair(true, pieceMove);
+    }
+    else
+    {
+        Move temp;
+        return make_pair(false, temp);
+    }
+}
+
+bool validateMove(Move &move, ChessBoard &board)
+{
+    // Checking if move is valid
+    // At this point, piece type is valid so skip!
+
+    // Check starting position has piece. And the right one. And the right colour
+    bool check = board.checkPlayerMove(move);
+    if (!check)
+    {
+        cout << "Invalid move: Either piece is not at the expected position or the piece cannot move to the final position" << endl;
+    }
+
     return check;
 }
 
-void validateMove(string move)
+void userMove(ChessBoard &board)
 {
-    // Checking if move is valid
-}
-
-bool userMove(ChessBoard &board)
-{
-    while (true)
+    bool valid = false;
+    while (!valid)
     {
         cout << endl;
         board.displayCurrentBoard();
         cout << endl;
         cout << "Your move..." << endl;
-        string move;
-        cin >> move;
-        for (char &c : move)
+        string input;
+        cin >> input;
+        for (char &c : input)
         {
             c = tolower(c);
         }
-        checkQuit(move);
-        if (!checkInput(move))
+        checkQuit(input);
+        pair<bool, Move> move = getMove(input);
+        if (!move.first)
         {
             continue;
         }
 
         // Valid Input. Check the move
-        validateMove(move);
-
-        break;
+        valid = validateMove(move.second, board);
     }
-    return true;
 }
 
 int main()

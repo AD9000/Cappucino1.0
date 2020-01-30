@@ -4,6 +4,7 @@
 #include "bitboard.hpp"
 using namespace std;
 using namespace masks;
+using namespace board;
 
 // bitboard::bitboard(unsigned long long init)
 // {
@@ -71,6 +72,36 @@ void ChessBoard::displayAll()
     displayBoard(WHITE);
     printf("Overall Board\n");
     displayBoard(BOARD);
+}
+
+ChessBoard::ChessBoard()
+{
+    BLACK_PAWN = 71776119061217280ULL;
+    BLACK_ROOK = 9295429630892703744ULL;
+    BLACK_KNIGHT = 4755801206503243776ULL;
+    BLACK_BISHOP = 2594073385365405696ULL;
+    BLACK_QUEEN = 1152921504606846976ULL;
+    BLACK_KING = 576460752303423488ULL;
+    BLACK = BLACK_PAWN | BLACK_ROOK | BLACK_KNIGHT | BLACK_BISHOP | BLACK_QUEEN | BLACK_KING;
+
+    WHITE_PAWN = 65280;
+    WHITE_ROOK = 129;
+    WHITE_KNIGHT = 66;
+    WHITE_BISHOP = 36;
+    WHITE_QUEEN = 16;
+    WHITE_KING = 8;
+    WHITE = WHITE_PAWN | WHITE_ROOK | WHITE_KNIGHT | WHITE_BISHOP | WHITE_QUEEN | WHITE_KING;
+
+    WHITE_SQUARES = 12273903644374837845ULL;
+    BLACK_SQUARES = ~WHITE_SQUARES;
+
+    BOARD = BLACK | WHITE;
+
+    boards.insert({(uint8_t)0, {BLACK_PAWN, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK}});
+    boards.insert({1, {WHITE_PAWN, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE}});
+    boards.insert({2, {BLACK_SQUARES, WHITE_SQUARES}});
+
+    pieceIndices = unordered_map<PieceType, uint8_t>({{PieceType::PAWN, 0}, {PieceType::ROOK, 1}, {PieceType::KNIGHT, 2}, {PieceType::BISHOP, 3}, {PieceType::QUEEN, 4}, {PieceType::KING, 5}});
 }
 
 void ChessBoard::displayBoard(bitboard board)
@@ -252,6 +283,39 @@ void ChessBoard::setPlayerColour(int colour)
 void ChessBoard::displayCurrentBoard()
 {
     displayBoard(BOARD);
+}
+
+bool ChessBoard::checkPlayerMove(Move move)
+{
+    if (move.startingPos.first == -1)
+    {
+        return false;
+    }
+    bitboard pieceTypeBoard = boards.at(getTurnColour()).at(pieceIndices.at(move.piece));
+
+    // Generate board of player's colour, with the given starting position
+    bitboard startBoard = pieceTypeBoard & (rows[move.startingPos.first] & columns[7 - move.startingPos.second]);
+
+    if (startBoard == 0)
+    {
+        // Not the right position
+        return false;
+    }
+
+    // Generate board of player's colour, with the given starting position
+    bitboard finalBoard = pieceTypeBoard & (rows[move.finalPos.first] & columns[7 - move.finalPos.second]);
+
+    cout << "final board"
+         << ", first: " << move.finalPos.first << endl;
+    displayBoard(finalBoard);
+
+    if (finalBoard == 0)
+    {
+        // Not the right position
+        return false;
+    }
+
+    return true;
 }
 
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)

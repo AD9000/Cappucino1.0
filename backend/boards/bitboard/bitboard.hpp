@@ -1,7 +1,11 @@
 #ifndef BITBOARD_HPP
 #define BITBOARD_HPP
 
+#include <unordered_map>
+#include <vector>
 #include "../masks.hpp"
+#include "pieces.hpp"
+using namespace board;
 // class bitboard
 // {
 // private:
@@ -17,26 +21,28 @@
 class ChessBoard
 {
 private:
-    bitboard BLACK_PAWN = 71776119061217280ULL;
-    bitboard BLACK_ROOK = 9295429630892703744ULL;
-    bitboard BLACK_KNIGHT = 4755801206503243776ULL;
-    bitboard BLACK_BISHOP = 2594073385365405696ULL;
-    bitboard BLACK_QUEEN = 1152921504606846976ULL;
-    bitboard BLACK_KING = 576460752303423488ULL;
-    bitboard BLACK = BLACK_PAWN | BLACK_ROOK | BLACK_KNIGHT | BLACK_BISHOP | BLACK_QUEEN | BLACK_KING;
+    bitboard BLACK_PAWN;
+    bitboard BLACK_ROOK;
+    bitboard BLACK_KNIGHT;
+    bitboard BLACK_BISHOP;
+    bitboard BLACK_QUEEN;
+    bitboard BLACK_KING;
+    bitboard BLACK;
 
-    bitboard WHITE_PAWN = 65280;
-    bitboard WHITE_ROOK = 129;
-    bitboard WHITE_KNIGHT = 66;
-    bitboard WHITE_BISHOP = 36;
-    bitboard WHITE_QUEEN = 16;
-    bitboard WHITE_KING = 8;
-    bitboard WHITE = WHITE_PAWN | WHITE_ROOK | WHITE_KNIGHT | WHITE_BISHOP | WHITE_QUEEN | WHITE_KING;
+    bitboard WHITE_PAWN;
+    bitboard WHITE_ROOK;
+    bitboard WHITE_KNIGHT;
+    bitboard WHITE_BISHOP;
+    bitboard WHITE_QUEEN;
+    bitboard WHITE_KING;
+    bitboard WHITE;
 
-    bitboard WHITE_SQUARES = 12273903644374837845ULL;
-    bitboard BLACK_SQUARES = ~WHITE_SQUARES;
+    bitboard WHITE_SQUARES;
+    bitboard BLACK_SQUARES;
 
-    bitboard BOARD = BLACK | WHITE;
+    bitboard BOARD;
+    unordered_map<uint8_t, vector<bitboard>> boards;
+    unordered_map<PieceType, uint8_t> pieceIndices;
     // 1 or true means white's turn, 0 or false means black's turn
     // White starts first
     bool Turn = 1;
@@ -44,10 +50,12 @@ private:
     bool PlayerColour = 0;
 
 public:
+    ChessBoard();
     bool isGameOver();
     int getTurnColour();
     void setPlayerColour(int);
     void displayCurrentBoard();
+    bool checkPlayerMove(Move);
     void displayAll();
     void displayBoard(bitboard);
     void generateMoves();
