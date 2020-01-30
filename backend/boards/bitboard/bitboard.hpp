@@ -37,12 +37,17 @@ private:
     bitboard BLACK_SQUARES = ~WHITE_SQUARES;
 
     bitboard BOARD = BLACK | WHITE;
-
     // 1 or true means white's turn, 0 or false means black's turn
     // White starts first
     bool Turn = 1;
+    bool GameOver = false;
+    bool PlayerColour = 0;
 
 public:
+    bool isGameOver();
+    int getTurnColour();
+    void setPlayerColour(int);
+    void displayCurrentBoard();
     void displayAll();
     void displayBoard(bitboard);
     void generateMoves();

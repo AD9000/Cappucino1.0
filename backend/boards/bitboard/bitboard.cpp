@@ -234,6 +234,26 @@ ChessBoard createBoard()
     return ChessBoard();
 }
 
+bool ChessBoard::isGameOver()
+{
+    return GameOver;
+}
+
+int ChessBoard::getTurnColour()
+{
+    return Turn;
+}
+
+void ChessBoard::setPlayerColour(int colour)
+{
+    PlayerColour = colour;
+}
+
+void ChessBoard::displayCurrentBoard()
+{
+    displayBoard(BOARD);
+}
+
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)
 // {
 
