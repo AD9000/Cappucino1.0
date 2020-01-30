@@ -13,18 +13,16 @@ The commands are split with each letter. To make a move, you must put in the ori
    - r - Rook
    - p - Pawn
 
-2. Original position of the piece to be moved.
-
+2. Original position of the piece to be moved. eg: b4
    - 1 letter for the file (columns marked a-h)
-   - 1 number for the rank (rows numbered 1-8)  
-     eg: b4
+   - 1 number for the rank (rows numbered 1-8)
 
 3. Final position of the piece to be moved, in the same format as the original position.
 
-All commands are case insensitive.
+So, a valid move could be: **qb1b7**  
+It would be interpreted as: Move the queen from b1 to b7.
 
-So, a valid move could be: qb1b7  
-Which means, move the queen from b1 to b7
+**Note**: All commands are case insensitive.
 
 ## Possible Improvements:
 
