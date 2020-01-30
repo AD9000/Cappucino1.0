@@ -28,4 +28,4 @@ Which means, move the queen from b1 to b7
 
 # Possible Improvements:
 
-1. Could halve the number of bitboards maintained by not splitting by colour. In that case, there would be no need to maintain a hashmap for accessing the boards either. All for the cost of 1 bitwise operation when checking each move. Since the tradeoff is accessing from some array, I think the engine would stand to benefit a lot from this change.
+1. Could halve the number of bitboards maintained by not splitting by colour. In that case, there would be no need to maintain a hashmap for accessing the boards either. All for the cost of 1 bitwise operation when checking each move. Since the tradeoff is accessing from some array, I think the engine would stand to benefit a lot from this change. Not to mention that there will be half the number of the boards to update on making every move. (MUST DO BEFORE BOARD EVALUATION)
