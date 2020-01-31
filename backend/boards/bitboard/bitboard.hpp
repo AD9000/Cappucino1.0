@@ -48,14 +48,19 @@ private:
     bool Turn = 1;
     bool GameOver = false;
     bool PlayerColour = 0;
+    bool enPassant = true; // en passant flag
 
 public:
     ChessBoard();
     bool isGameOver();
     int getTurnColour();
-    void setPlayerColour(int);
+    bool getPlayerColour();
+    bool getEnPassant();
+    void setPlayerColour(bool);
     void displayCurrentBoard();
     bool checkPlayerMove(Move);
+    bitboard generatePossibleMoves(PieceType, pair<int8_t, int8_t>);
+    bitboard naivePawnPossibleMoves(uint8_t row, uint8_t col);
     void displayAll();
     void displayBoard(bitboard);
     void generateMoves();

@@ -275,7 +275,7 @@ int ChessBoard::getTurnColour()
     return Turn;
 }
 
-void ChessBoard::setPlayerColour(int colour)
+void ChessBoard::setPlayerColour(bool colour)
 {
     PlayerColour = colour;
 }
@@ -302,6 +302,8 @@ bool ChessBoard::checkPlayerMove(Move move)
         return false;
     }
 
+    bitboard possibleMoves = generatePossibleMoves(move.piece, move.startingPos);
+
     // Generate board of player's colour, with the given starting position
     bitboard finalBoard = pieceTypeBoard & (rows[move.finalPos.first] & columns[7 - move.finalPos.second]);
 
@@ -316,6 +318,69 @@ bool ChessBoard::checkPlayerMove(Move move)
     }
 
     return true;
+}
+
+bool ChessBoard::getEnPassant()
+{
+    return enPassant;
+}
+
+bitboard ChessBoard::naivePawnPossibleMoves(uint8_t row, uint8_t col)
+{
+    // Check upper or lower rows depending on the colour
+    int colour = getTurnColour();
+    int colouredRow = colour ? row : 7 - row;
+    int offset = colour ? 1 : -1;
+    bitboard r1 = rows[colouredRow + offset];
+    bitboard r2 = rows[colouredRow + (offset * 2)];
+    bitboard moves = 0;
+
+    // int twoMovePos = colour ? 1 : 6;
+    // if (row == twoMovePos) {
+    //     // Check the next two positions for any pieces
+    //     bitboard twoPosForward = rows[row - (2 * -1 * colour)] & columns[col] & BOARD;
+    //     if (twoMovePos > 0) {
+
+    //     }
+    // }
+
+    // Checking straight movement
+    bitboard checker = columns[col] & BOARD;
+    if ((checker & r1) == 0)
+    {
+        if ((checker & r2) == 0)
+        {
+            moves |= (r1 | r2) & columns[col];
+        }
+        else
+        {
+            moves |= r1 & columns[col];
+        }
+    }
+
+    // Piece Capture
+    bitboard oppColorBoard = colour ? BLACK : WHITE;
+    bitboard left = col == 7 ? bitboardMax : columns[col + 1];
+    bitboard right = col == 0 ? bitboardMax : columns[col - 1];
+    bitboard captureBoard = oppColorBoard & r1 & (left | right);
+    moves |= captureBoard;
+
+    // En passant
+    if (getEnPassant())
+    {
+    }
+}
+
+bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> indices)
+{
+    switch (p)
+    {
+    case PieceType::PAWN:
+        return naivePawnPossibleMoves(indices.first, indices.second);
+
+    default:
+        break;
+    }
 }
 
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)
