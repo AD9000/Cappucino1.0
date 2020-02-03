@@ -67,7 +67,7 @@ void ChessBoard::displayAll()
     printf("White Knight\n");
     displayBoard(WHITE_KNIGHT);
     printf("White Pawn\n");
-    displayBoard(WHITE_PAWN);
+    displayBoard(boards.at(1).at(pieceIndices.at(PieceType::PAWN)));
     printf("All White\n");
     displayBoard(WHITE);
     printf("Overall Board\n");
@@ -289,13 +289,17 @@ bool ChessBoard::checkPlayerMove(Move move)
 {
     if (move.startingPos.first == -1)
     {
+        cout << "Ouch" << endl;
         return false;
     }
     bitboard pieceTypeBoard = boards.at(getTurnColour()).at(pieceIndices.at(move.piece));
 
     // Generate board of player's colour, with the given starting position
-    bitboard startBoard = pieceTypeBoard & (rows[move.startingPos.first] & columns[7 - move.startingPos.second]);
+    bitboard startBoard = pieceTypeBoard & (rows[move.startingPos.first] & columns[move.startingPos.second]);
 
+    // cout << "startBoard" << endl;
+    // displayBoard(pieceTypeBoard);
+    // displayBoard(startBoard);
     if (startBoard == 0)
     {
         // Not the right position
@@ -305,11 +309,16 @@ bool ChessBoard::checkPlayerMove(Move move)
     bitboard possibleMoves = generatePossibleMoves(move.piece, move.startingPos);
 
     // Generate board of player's colour, with the given starting position
-    bitboard finalBoard = pieceTypeBoard & (rows[move.finalPos.first] & columns[7 - move.finalPos.second]);
+    // cout << "Final row, column: " << endl;
+    // cout << move.finalPos.first - 10 << endl;
+    // displayBoard(rows[move.finalPos.first]);
+    // displayBoard(columns[move.finalPos.second]);
+    // displayBoard(possibleMoves);
+    bitboard finalBoard = possibleMoves & (rows[move.finalPos.first] & columns[move.finalPos.second]);
 
-    cout << "final board"
-         << ", first: " << move.finalPos.first << endl;
-    displayBoard(finalBoard);
+    // cout << "final board"
+    //      << ", first: " << move.finalPos.first << endl;
+    // displayBoard(finalBoard);
 
     if (finalBoard == 0)
     {
@@ -320,18 +329,28 @@ bool ChessBoard::checkPlayerMove(Move move)
     return true;
 }
 
-bool ChessBoard::getEnPassant()
+bool ChessBoard::getEnPassant(bool colour, int file)
 {
-    return enPassant;
+    if (file < 0 || file > 7)
+    {
+        return false;
+    }
+    return enPassant[(colour * 8) + file];
 }
 
 bitboard ChessBoard::naivePawnPossibleMoves(uint8_t row, uint8_t col)
 {
+    // cout << "generating possible moves..." << endl;
+
     // Check upper or lower rows depending on the colour
     int colour = getTurnColour();
     int colouredRow = colour ? row : 7 - row;
     int offset = colour ? 1 : -1;
     bitboard r1 = rows[colouredRow + offset];
+
+    // cout << "r1" << endl;
+    // displayBoard(r1);
+
     bitboard r2 = rows[colouredRow + (offset * 2)];
     bitboard moves = 0;
 
@@ -360,15 +379,27 @@ bitboard ChessBoard::naivePawnPossibleMoves(uint8_t row, uint8_t col)
 
     // Piece Capture
     bitboard oppColorBoard = colour ? BLACK : WHITE;
-    bitboard left = col == 7 ? bitboardMax : columns[col + 1];
-    bitboard right = col == 0 ? bitboardMax : columns[col - 1];
+    bitboard left = col == 7 ? 0 : columns[col + 1];
+    bitboard right = col == 0 ? 0 : columns[col - 1];
     bitboard captureBoard = oppColorBoard & r1 & (left | right);
     moves |= captureBoard;
 
     // En passant
-    if (getEnPassant())
+    bitboard oppColourPawns = colour ? BLACK_PAWN : WHITE_PAWN;
+    // If there are any pawns on the same row,
+    bitboard enPassant = rows[row] & oppColourPawns;
+    bitboard leftEnPassant = (enPassant & left);
+    bitboard rightEnPassant = (enPassant & right);
+    if (getEnPassant(!colour, col + 1) && leftEnPassant)
     {
+        moves |= leftEnPassant;
     }
+    if (getEnPassant(!colour, col - 1) && rightEnPassant)
+    {
+        moves |= rightEnPassant;
+    }
+
+    return moves;
 }
 
 bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> indices)
@@ -376,11 +407,48 @@ bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> ind
     switch (p)
     {
     case PieceType::PAWN:
-        return naivePawnPossibleMoves(indices.first, indices.second);
-
+    {
+        bitboard pawnMoves = naivePawnPossibleMoves(indices.first, indices.second);
+        // cout << "Pawn moves:" << endl;
+        // displayBoard(pawnMoves);
+        return pawnMoves;
+    }
     default:
         break;
     }
+}
+
+// Update the 3 boards that are affected by the move
+void ChessBoard::makeMove(Move move)
+{
+    bool colour = getTurnColour();
+    bitboard removal = ~(rows[move.startingPos.first] & columns[move.startingPos.second]);
+    bitboard addition = rows[move.finalPos.first] & columns[move.finalPos.second];
+
+    bitboard pieceBoard = boards.at(colour).at(pieceIndices.at(move.piece));
+    if (colour)
+    {
+        WHITE &= removal;
+        WHITE |= addition;
+    }
+    else
+    {
+        BLACK &= removal;
+        BLACK |= addition;
+    }
+
+    pieceBoard &= removal;
+    pieceBoard |= addition;
+    boards.at(colour).at(pieceIndices.at(move.piece)) = pieceBoard;
+    // WHITE_PAWN = pieceBoard;
+
+    BOARD &= removal;
+    BOARD |= addition;
+
+    // cout << "Changed" << endl;
+    // displayBoard(BOARD);
+    // displayBoard(WHITE);
+    // displayBoard(boards.at(colour).at(pieceIndices.at(move.piece)));
 }
 
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)

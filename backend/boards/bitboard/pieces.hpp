@@ -1,6 +1,7 @@
 #ifndef PIECES_HPP
 #define PIECES_HPP
 
+#include <iostream>
 #include <unordered_set>
 using namespace std;
 
@@ -30,8 +31,9 @@ typedef struct _move
     _move(PieceType p, char sFile, char sRank, char fFile, char fRank)
     {
         piece = p;
-        startingPos = make_pair(sFile - 1, sRank - '1');
-        finalPos = make_pair(fFile - 1, fRank - '1');
+        cout << "startingPos: (" << sRank - '1' << ", " << 7 - (sFile - 'a') << ")" << endl;
+        startingPos = make_pair(sRank - '1', 7 - (sFile - 'a'));
+        finalPos = make_pair(fRank - '1', 7 - (fFile - 'a'));
     }
 } Move;
 

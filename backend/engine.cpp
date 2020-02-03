@@ -70,9 +70,12 @@ pair<bool, Move> getMove(string move)
     {
         tryAgain();
     }
+
     if (check)
     {
         Move pieceMove((PieceType)move[0], move[1], move[2], move[3], move[4]);
+
+        // cout << "Start pos: " << pieceMove.startingPos.first + 0 << pieceMove.startingPos.second + 0 << endl;
         return make_pair(true, pieceMove);
     }
     else
@@ -80,6 +83,7 @@ pair<bool, Move> getMove(string move)
         Move temp;
         return make_pair(false, temp);
     }
+    // board.generatePossibleMoves(PieceType::PAWN, make_pair(1, 6));
 }
 
 bool validateMove(Move &move, ChessBoard &board)
@@ -100,6 +104,7 @@ bool validateMove(Move &move, ChessBoard &board)
 void userMove(ChessBoard &board)
 {
     bool valid = false;
+    Move playerMove;
     while (!valid)
     {
         cout << endl;
@@ -119,9 +124,14 @@ void userMove(ChessBoard &board)
             continue;
         }
 
+        playerMove = move.second;
+
         // Valid Input. Check the move
         valid = validateMove(move.second, board);
     }
+
+    // Move must be validated by now. Make the move!
+    board.makeMove(playerMove);
 }
 
 int main()
@@ -135,15 +145,16 @@ int main()
         exit(1);
     }
 
-    cout << "Starting..." << endl;
+    // cout << "Starting..." << endl;
 
     while (!board.isGameOver())
     {
         // Ask user to play a move
         userMove(board);
-
-        break;
+        // break;
     }
+
+    board.displayAll();
 
     return 0;
 }
