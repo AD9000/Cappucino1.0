@@ -8,7 +8,7 @@ all: engine
 .PHONY: mainengine
 engine: engine.o bitboard.o
 
-engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp
+engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/pieces.hpp
 	$(CC) -c engine.cpp
 
 bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp
