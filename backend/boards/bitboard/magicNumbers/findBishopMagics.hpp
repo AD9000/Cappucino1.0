@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "boards/bitboard.hpp"
+#include "../bitboard.hpp"
 using namespace std;
 
 typedef struct _bishopMask

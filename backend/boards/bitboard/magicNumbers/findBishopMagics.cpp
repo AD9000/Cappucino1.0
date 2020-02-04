@@ -6,7 +6,7 @@
 
 #include "boards/masks.hpp"
 #include "findBishopMagics.hpp"
-#include "magicnumbers.hpp"
+#include "../bishopMagics.hpp"
 using namespace std;
 using namespace masks;
 
@@ -404,7 +404,7 @@ int main()
     for (bishopMask mask : masks)
     {
         vector<bitboard> posRes;
-        bitboard hasher = magicNumbers::bishopMagics[i];
+        bitboard hasher = BishopMagics::bishopMagics[i];
         unordered_set<bitboard> variations;
         generateBlockerVariations(mask.board, 0, variations);
         for (bitboard variation : variations)

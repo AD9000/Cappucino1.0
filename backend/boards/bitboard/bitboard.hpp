@@ -5,6 +5,7 @@
 #include <vector>
 #include "../masks.hpp"
 #include "pieces.hpp"
+#include "helper.hpp"
 using namespace board;
 // class bitboard
 // {
@@ -62,6 +63,11 @@ public:
     void makeMove(Move);
     bitboard generatePossibleMoves(PieceType, pair<int8_t, int8_t>);
     bitboard naivePawnPossibleMoves(uint8_t row, uint8_t col);
+    bitboard naiveBishopPossibleMoves(uint8_t row, uint8_t col);
+    bitboard naiveKnightPossibleMoves(uint8_t row, uint8_t col);
+    bitboard naiveRookPossibleMoves(uint8_t row, uint8_t col);
+    bitboard naiveQueenPossibleMoves(uint8_t row, uint8_t col);
+    bitboard naiveKingPossibleMoves(uint8_t row, uint8_t col);
     void displayAll();
     void displayBoard(bitboard);
     void generateMoves();

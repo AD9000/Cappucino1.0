@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "bitboard.hpp"
+#include "bishopMagics.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;
@@ -308,12 +309,13 @@ bool ChessBoard::checkPlayerMove(Move move)
 
     bitboard possibleMoves = generatePossibleMoves(move.piece, move.startingPos);
 
+    cout << "Possible moves: " << endl;
     // Generate board of player's colour, with the given starting position
     // cout << "Final row, column: " << endl;
     // cout << move.finalPos.first - 10 << endl;
     // displayBoard(rows[move.finalPos.first]);
     // displayBoard(columns[move.finalPos.second]);
-    // displayBoard(possibleMoves);
+    displayBoard(possibleMoves);
     bitboard finalBoard = possibleMoves & (rows[move.finalPos.first] & columns[move.finalPos.second]);
 
     // cout << "final board"
@@ -402,6 +404,25 @@ bitboard ChessBoard::naivePawnPossibleMoves(uint8_t row, uint8_t col)
     return moves;
 }
 
+bitboard ChessBoard::naiveBishopPossibleMoves(uint8_t row, uint8_t col)
+{
+    bitboard colourBoard = getTurnColour() ? WHITE : BLACK;
+    // generate the mask
+    bitboard mask = generateBishopMask(row, col);
+    // Get blockers -> the board itself
+    // get the legal moves from it
+    bitboard b = mask & BOARD;
+    int index1 = row * 8 + col;
+    int legalIndex = ((BishopMagics::bishopMagics[index1] * b) >> 51);
+    bitboard oppLegal = BishopMagics::bishopLegals[index1][legalIndex];
+    return (oppLegal & ~colourBoard);
+}
+
+bitboard ChessBoard::naiveKnightPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+bitboard ChessBoard::naiveRookPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+bitboard ChessBoard::naiveQueenPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+bitboard ChessBoard::naiveKingPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+
 bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> indices)
 {
     switch (p)
@@ -412,6 +433,23 @@ bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> ind
         // cout << "Pawn moves:" << endl;
         // displayBoard(pawnMoves);
         return pawnMoves;
+    }
+    case PieceType::BISHOP:
+    {
+        bitboard bishopMoves = naiveBishopPossibleMoves(indices.first, indices.second);
+        return bishopMoves;
+    }
+    case PieceType::KNIGHT:
+    {
+    }
+    case PieceType::ROOK:
+    {
+    }
+    case PieceType::QUEEN:
+    {
+    }
+    case PieceType::KING:
+    {
     }
     default:
         break;

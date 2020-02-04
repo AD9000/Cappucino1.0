@@ -138,7 +138,8 @@ int main()
 {
     // Create a chess board
     ChessBoard board = ChessBoard();
-
+    // board.makeMove(getMove("pb2b4").second);
+    // board.naiveBishopPossibleMoves(0, 5);
     // Ask player to choose a side
     if (!playerSetup(board))
     {
@@ -154,7 +155,7 @@ int main()
         // break;
     }
 
-    board.displayAll();
+    // board.displayAll();
 
     return 0;
 }
