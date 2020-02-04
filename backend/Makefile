@@ -6,13 +6,17 @@ CC=g++
 all: engine
 
 .PHONY: mainengine
-engine: engine.o bitboard.o
+engine: engine.o bitboard.o helper.o
 
 engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/pieces.hpp
 	$(CC) -c engine.cpp
 
-bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp
-	$(CC) -c $(BITBOARDDIR)/bitboard.hpp $(BITBOARDDIR)/bitboard.cpp
+bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp $(BITBOARDDIR)/pieces.hpp helper.o
+	$(CC) -c $(BITBOARDDIR)/bitboard.cpp 
+
+helper.o: $(BITBOARDDIR)/helper.cpp $(BITBOARDDIR)/helper.hpp
+	$(CC) -c $(BITBOARDDIR)/helper.hpp $(BITBOARDDIR)/helper.cpp
+
 
 # .PHONY: boards
 # $(BOARDDIR)/board.o: $(BOARDDIR)/board.hpp $(BOARDDIR)/bitboard.hpp $(BOARDDIR)/bitboard.cpp
