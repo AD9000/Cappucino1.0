@@ -138,22 +138,25 @@ int main()
 {
     // Create a chess board
     ChessBoard board = ChessBoard();
-    // board.makeMove(getMove("pb2b4").second);
-    // board.naiveBishopPossibleMoves(0, 5);
-    // Ask player to choose a side
-    if (!playerSetup(board))
-    {
-        exit(1);
-    }
+    board.makeMove(getMove("pa2a4").second);
+    board.makeMove(getMove("ra1a3").second);
+    board.makeMove(getMove("ra3e3").second);
+    board.makeMove(getMove("re3e7").second);
+    board.naiveRookPossibleMoves(6, 3);
+    // // Ask player to choose a side
+    // if (!playerSetup(board))
+    // {
+    //     exit(1);
+    // }
 
-    // cout << "Starting..." << endl;
+    // // cout << "Starting..." << endl;
 
-    while (!board.isGameOver())
-    {
-        // Ask user to play a move
-        userMove(board);
-        // break;
-    }
+    // while (!board.isGameOver())
+    // {
+    //     // Ask user to play a move
+    //     userMove(board);
+    //     // break;
+    // }
 
     // board.displayAll();
 

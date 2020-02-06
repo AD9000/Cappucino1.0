@@ -3,6 +3,7 @@
 #include <iostream>
 #include "bitboard.hpp"
 #include "bishopMagics.hpp"
+#include "rookMagics.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;
@@ -419,7 +420,22 @@ bitboard ChessBoard::naiveBishopPossibleMoves(uint8_t row, uint8_t col)
 }
 
 bitboard ChessBoard::naiveKnightPossibleMoves(uint8_t row, uint8_t col) { return 0; }
-bitboard ChessBoard::naiveRookPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+bitboard ChessBoard::naiveRookPossibleMoves(uint8_t row, uint8_t col)
+{
+    bitboard colourBoard = getTurnColour() ? WHITE : BLACK;
+    // generate the mask
+    bitboard mask = generateRookMask(row, col);
+    displayBoard(mask);
+    // Get blockers -> the board itself
+    // get the legal moves from it
+    bitboard b = mask & BOARD;
+    int index1 = row * 8 + col;
+    int legalIndex = ((RookMagics::rookMagics[index1] * b) >> 50);
+    bitboard oppLegal = RookMagics::rookLegals[index1][legalIndex];
+    displayBoard(oppLegal);
+    displayBoard(oppLegal & ~colourBoard);
+    return (oppLegal & ~colourBoard);
+}
 bitboard ChessBoard::naiveQueenPossibleMoves(uint8_t row, uint8_t col) { return 0; }
 bitboard ChessBoard::naiveKingPossibleMoves(uint8_t row, uint8_t col) { return 0; }
 
@@ -444,6 +460,7 @@ bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> ind
     }
     case PieceType::ROOK:
     {
+        return naiveRookPossibleMoves(indices.first, indices.second);
     }
     case PieceType::QUEEN:
     {

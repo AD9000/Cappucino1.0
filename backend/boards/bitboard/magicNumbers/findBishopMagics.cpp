@@ -4,7 +4,7 @@
 #include <fstream>
 #include <bitset>
 
-#include "boards/masks.hpp"
+#include "../../masks.hpp"
 #include "findBishopMagics.hpp"
 #include "../bishopMagics.hpp"
 using namespace std;

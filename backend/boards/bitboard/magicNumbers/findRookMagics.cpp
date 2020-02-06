@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "boards/masks.hpp"
+#include "../../masks.hpp"
 #include "findRookMagics.hpp"
-#include "magicnumbers.hpp"
+#include "../rookMagics.hpp"
 using namespace masks;
 void displayBoard(bitboard board)
 {
@@ -121,7 +121,7 @@ uint64_t checkMagicNumber(uint64_t number, uint8_t bits)
     return 0;
 }
 
-bitboard getTop(rookMask mask, bitboard blockers, bitboard andres)
+bitboard getTop(rookMask mask, bitboard blockers)
 {
     // search for firstblocker
     bitboard res = 0;
@@ -177,7 +177,7 @@ bitboard getLegalRowBitboard(rookMask mask, bitboard blockers)
     // bitboard topCol = getTopColBoard(andRes, row, col);
     bitboard rowBitBoard = andRes;
 
-    return getTop(mask, blockers, getBottom(mask, blockers));
+    return getTop(mask, blockers) | getBottom(mask, blockers);
 }
 
 bitboard getRight(rookMask mask, bitboard blockers)
@@ -396,6 +396,17 @@ vector<uint64_t> findAllRookMagicNumbers(vector<rookMask> masks)
 
 int main()
 {
+    // vector<rookMask> masks = generateRookPossibleMovesMasks();
+    // displayBoard(masks[50].board);
+    // unordered_set<bitboard> variations;
+    // generateBlockerVariations(masks[50].board, 0, variations);
+    // for (auto variation : variations)
+    // {
+    //     cout << "For variation: " << endl;
+    //     displayBoard(variation);
+    //     cout << "Legal: " << endl;
+    //     displayBoard(generateLegalMoveBitboard(masks[50], variation));
+    // }
     // findAllRookMagicNumbers(generateRookPossibleMovesMasks());
     vector<vector<bitboard>> res;
     vector<rookMask> masks = generateRookPossibleMovesMasks();
@@ -403,7 +414,7 @@ int main()
     for (rookMask mask : masks)
     {
         vector<bitboard> posRes;
-        bitboard hasher = magicNumbers::rookMagics[i];
+        bitboard hasher = RookMagics::rookMagics[i];
         unordered_set<bitboard> variations;
         generateBlockerVariations(mask.board, 0, variations);
         for (bitboard variation : variations)
@@ -427,19 +438,21 @@ int main()
         cout << b << endl;
     }
 
-    // ofstream myfile;
-    // myfile.open("rookHash.txt");
-    // myfile << "bitboard rookLegals[][] = { ";
-    // for (auto pos : res)
-    // {
-    //     myfile << "{";
-    //     for (bitboard b : pos)
-    //     {
-    //         myfile << "0x" << hex << b << "ULL, ";
-    //     }
-    //     myfile << "}, " << endl;
-    // }
-    // myfile.close();
+    // ofstream magic;
+    ofstream myfile;
+    // magic.open("magic.txt");
+    myfile.open("rookHash.txt");
+    myfile << "bitboard rookLegals[][] = { ";
+    for (auto pos : res)
+    {
+        myfile << "{";
+        for (bitboard b : pos)
+        {
+            myfile << "0x" << hex << b << "ULL, ";
+        }
+        myfile << "}, " << endl;
+    }
+    myfile.close();
 
     return 0;
 }

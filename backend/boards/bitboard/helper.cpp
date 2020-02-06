@@ -50,3 +50,37 @@ bitboard generateBishopMask(uint8_t row, uint8_t col)
     }
     return board;
 }
+
+bitboard generateRookMask(uint8_t row, uint8_t col)
+{
+    bitboard board = rows[row] ^ columns[col];
+    // Assuming that the rook is not on the edge, remove edges
+    if (row && row != 7)
+    {
+        board &= ~rows[0];
+        board &= ~rows[7];
+    }
+    else if (row)
+    {
+        board &= ~rows[0];
+    }
+    else
+    {
+        board &= ~rows[7];
+    }
+
+    if (col && col != 7)
+    {
+        board &= ~columns[0];
+        board &= ~columns[7];
+    }
+    else if (col)
+    {
+        board &= ~columns[0];
+    }
+    else
+    {
+        board &= ~columns[7];
+    }
+    return board;
+}
