@@ -1,6 +1,6 @@
 # Cappucino - The brain
 
-## How to play against the engine:
+## How to play against the engine (In the terminal):
 
 The commands are split with each letter. To make a move, you must put in the original position of the piece to be moved and the final piece to be moved. If the move is valid, the move is made, and the engine begins thinking. Otherwise, the user is prompted accordingly. The format is as follows:
 
