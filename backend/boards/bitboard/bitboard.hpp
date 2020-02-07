@@ -68,6 +68,7 @@ public:
     bitboard naiveRookPossibleMoves(uint8_t row, uint8_t col);
     bitboard naiveQueenPossibleMoves(uint8_t row, uint8_t col);
     bitboard naiveKingPossibleMoves(uint8_t row, uint8_t col);
+    void endTurn();
     void displayAll();
     void displayBoard(bitboard);
     void generateMoves();

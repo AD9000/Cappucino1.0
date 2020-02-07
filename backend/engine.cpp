@@ -7,7 +7,7 @@ using namespace std;
 using namespace masks;
 using namespace board;
 
-bool playerSetup(ChessBoard board)
+bool playerSetup(ChessBoard &board)
 {
     cout << "Please choose a side w/b" << endl;
     string ans;
@@ -15,11 +15,11 @@ bool playerSetup(ChessBoard board)
 
     if (ans[0] == 'w' || ans[0] == 'W')
     {
-        board.setPlayerColour(0);
+        board.setPlayerColour(1);
     }
     else if (ans[0] == 'b' || ans[0] == 'B')
     {
-        board.setPlayerColour(1);
+        board.setPlayerColour(0);
     }
     else
     {
@@ -92,6 +92,8 @@ bool validateMove(Move &move, ChessBoard &board)
     // At this point, piece type is valid so skip!
 
     // Check starting position has piece. And the right one. And the right colour
+    cout << move.startingPos.first << " " << move.startingPos.second << endl;
+    cout << move.finalPos.first << " " << move.finalPos.second << endl;
     bool check = board.checkPlayerMove(move);
     if (!check)
     {
@@ -103,6 +105,11 @@ bool validateMove(Move &move, ChessBoard &board)
 
 void userMove(ChessBoard &board)
 {
+    // Skip if not user's turn
+    if (board.getTurnColour() != board.getPlayerColour())
+    {
+        return;
+    }
     bool valid = false;
     Move playerMove;
     while (!valid)
@@ -134,11 +141,18 @@ void userMove(ChessBoard &board)
     board.makeMove(playerMove);
 }
 
+void engineMove(ChessBoard &board)
+{
+    cout << "Engine Moved!" << endl;
+    board.endTurn();
+}
+
 int main()
 {
     // Create a chess board
     ChessBoard board = ChessBoard();
-    // board.makeMove(getMove("pe2e4").second);
+    // board.endTurn();
+    // board.makeMove(getMove("pb7b5").second);
     // board.makeMove(getMove("qd1g4").second);
     // board.makeMove(getMove("qg4g7").second);
     // // board.makeMove(getMove("re3e7").second);
@@ -155,6 +169,7 @@ int main()
     {
         // Ask user to play a move
         userMove(board);
+        engineMove(board);
         // break;
     }
 

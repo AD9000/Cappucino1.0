@@ -279,9 +279,15 @@ int ChessBoard::getTurnColour()
     return Turn;
 }
 
+bool ChessBoard::getPlayerColour()
+{
+    return PlayerColour;
+}
+
 void ChessBoard::setPlayerColour(bool colour)
 {
     PlayerColour = colour;
+    cout << PlayerColour << endl;
 }
 
 void ChessBoard::displayCurrentBoard()
@@ -349,14 +355,13 @@ bitboard ChessBoard::naivePawnPossibleMoves(uint8_t row, uint8_t col)
 
     // Check upper or lower rows depending on the colour
     int colour = getTurnColour();
-    int colouredRow = colour ? row : 7 - row;
     int offset = colour ? 1 : -1;
-    bitboard r1 = rows[colouredRow + offset];
+    bitboard r1 = rows[row + offset];
 
-    // cout << "r1" << endl;
-    // displayBoard(r1);
+    cout << "r1" << endl;
+    displayBoard(r1);
 
-    bitboard r2 = rows[colouredRow + (offset * 2)];
+    bitboard r2 = rows[row + (offset * 2)];
     bitboard moves = 0;
 
     // int twoMovePos = colour ? 1 : 6;
@@ -465,8 +470,8 @@ bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> ind
     case PieceType::PAWN:
     {
         bitboard pawnMoves = naivePawnPossibleMoves(indices.first, indices.second);
-        // cout << "Pawn moves:" << endl;
-        // displayBoard(pawnMoves);
+        cout << "Pawn moves:" << endl;
+        displayBoard(pawnMoves);
         return pawnMoves;
     }
     case PieceType::BISHOP:
@@ -499,6 +504,13 @@ bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> ind
 void ChessBoard::makeMove(Move move)
 {
     bool colour = getTurnColour();
+    if (getPlayerColour() != colour)
+    {
+        cout << getPlayerColour() << endl;
+        cout << colour << endl;
+        cout << "Not the player's turn" << endl;
+        return;
+    }
     bitboard removal = ~(rows[move.startingPos.first] & columns[move.startingPos.second]);
     bitboard addition = rows[move.finalPos.first] & columns[move.finalPos.second];
 
@@ -522,10 +534,17 @@ void ChessBoard::makeMove(Move move)
     BOARD &= removal;
     BOARD |= addition;
 
+    endTurn();
+
     // cout << "Changed" << endl;
-    // displayBoard(BOARD);
+    displayBoard(BOARD);
     // displayBoard(WHITE);
     // displayBoard(boards.at(colour).at(pieceIndices.at(move.piece)));
+}
+
+void ChessBoard::endTurn()
+{
+    Turn = !Turn;
 }
 
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)
