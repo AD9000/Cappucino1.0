@@ -5,6 +5,7 @@
 #include "bishopMagics.hpp"
 #include "rookMagics.hpp"
 #include "knightMasks.hpp"
+#include "kingMasks.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;
@@ -449,7 +450,13 @@ bitboard ChessBoard::naiveQueenPossibleMoves(uint8_t row, uint8_t col)
     displayBoard(naiveRookPossibleMoves(row, col) | naiveBishopPossibleMoves(row, col));
     return (naiveRookPossibleMoves(row, col) | naiveBishopPossibleMoves(row, col));
 }
-bitboard ChessBoard::naiveKingPossibleMoves(uint8_t row, uint8_t col) { return 0; }
+bitboard ChessBoard::naiveKingPossibleMoves(uint8_t row, uint8_t col)
+{
+    int index = row * 8 + col;
+    bitboard colourBoard = getTurnColour() ? WHITE : BLACK;
+    displayBoard(KingMasks::kingMasks[index]);
+    return KingMasks::kingMasks[index] & ~(colourBoard & ~(1ULL << index));
+}
 
 bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> indices)
 {

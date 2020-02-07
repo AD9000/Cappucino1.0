@@ -1,7 +1,7 @@
 CC=g++
 MASKDIR=..
 
-all: rfind bfind mfind
+all: rfind bfind mfind kfind
 
 .PHONY: findRookMagics
 rfind: findRookMagics.cpp $(MASKDIR)/rookMagics.hpp
@@ -14,3 +14,7 @@ bfind: findBishopMagics.cpp $(MASKDIR)/bishopMagics.hpp
 .PHONY: findKnightMasks
 mfind: findKnightMasks.cpp
 	$(CC) -o mfind findKnightMasks.cpp
+
+.PHONY: findKingMasks
+kfind: findKingMasks.cpp
+	$(CC) -o kfind findKingMasks.cpp
