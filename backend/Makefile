@@ -1,5 +1,6 @@
 BOARDDIR=boards
 BITBOARDDIR=$(BOARDDIR)/bitboard
+PIECESDIR=$(BITBOARDDIR)/pieces
 
 CC=g++
 
@@ -8,10 +9,10 @@ all: engine
 .PHONY: mainengine
 engine: engine.o bitboard.o helper.o
 
-engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/pieces.hpp
+engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp $(PIECESDIR)/pieces.hpp
 	$(CC) -c engine.cpp
 
-bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp $(BITBOARDDIR)/pieces.hpp helper.o
+bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp $(PIECESDIR)/pieces.hpp helper.o
 	$(CC) -c $(BITBOARDDIR)/bitboard.cpp 
 
 helper.o: $(BITBOARDDIR)/helper.cpp $(BITBOARDDIR)/helper.hpp
@@ -33,3 +34,4 @@ clean:
 	rm -f engine
 	rm -f bfind
 	rm -f rfind
+	rm -f *.hpp.gch

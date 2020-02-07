@@ -1,5 +1,5 @@
 #include <cstdint>
-#include "../masks.hpp"
+#include "masks.hpp"
 using namespace masks;
 
 int findLDiag(bitboard);

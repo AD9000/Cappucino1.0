@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include "bitboard.hpp"
-#include "bishopMagics.hpp"
-#include "rookMagics.hpp"
-#include "knightMasks.hpp"
-#include "kingMasks.hpp"
+#include "pieces/bishopMagics.hpp"
+#include "pieces/rookMagics.hpp"
+#include "pieces/knightMasks.hpp"
+#include "pieces/kingMasks.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;

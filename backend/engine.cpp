@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "boards/bitboard/bitboard.hpp"
-#include "boards/bitboard/pieces.hpp"
+#include "boards/bitboard/pieces/pieces.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;

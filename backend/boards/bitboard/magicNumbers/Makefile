@@ -18,3 +18,6 @@ mfind: findKnightMasks.cpp
 .PHONY: findKingMasks
 kfind: findKingMasks.cpp
 	$(CC) -o kfind findKingMasks.cpp
+
+.PHONY: clean
+	rm -f *.txt

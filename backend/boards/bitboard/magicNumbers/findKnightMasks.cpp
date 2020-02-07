@@ -1,4 +1,4 @@
-#include "../../masks.hpp"
+#include "../masks.hpp"
 #include <iostream>
 #include <unordered_set>
 #include <vector>

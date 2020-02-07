@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "../../masks.hpp"
+#include "../masks.hpp"
 #include "findRookMagics.hpp"
-#include "../rookMagics.hpp"
+#include "../pieces/rookMagics.hpp"
 using namespace masks;
 void displayBoard(bitboard board)
 {

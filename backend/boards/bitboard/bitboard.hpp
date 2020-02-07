@@ -3,8 +3,8 @@
 
 #include <unordered_map>
 #include <vector>
-#include "../masks.hpp"
-#include "pieces.hpp"
+#include "masks.hpp"
+#include "pieces/pieces.hpp"
 #include "helper.hpp"
 using namespace board;
 // class bitboard

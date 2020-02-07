@@ -4,9 +4,9 @@
 #include <fstream>
 #include <bitset>
 
-#include "../../masks.hpp"
+#include "../masks.hpp"
 #include "findBishopMagics.hpp"
-#include "../bishopMagics.hpp"
+#include "../pieces/bishopMagics.hpp"
 using namespace std;
 using namespace masks;
 
