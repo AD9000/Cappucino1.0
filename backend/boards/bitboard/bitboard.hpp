@@ -48,7 +48,7 @@ private:
     // White starts first
     bool Turn = 1;
     bool GameOver = false;
-    bool PlayerColour = 0;
+    bool PlayerColour = 1;
     bool enPassant[16] = {0}; // en passant flags for each pawn
 
 public:
@@ -61,16 +61,16 @@ public:
     void displayCurrentBoard();
     bool checkPlayerMove(Move);
     void makeMove(Move);
-    bitboard generatePossibleMoves(PieceType, pair<int8_t, int8_t>);
-    bitboard naivePawnPossibleMoves(uint8_t row, uint8_t col);
-    bitboard naiveBishopPossibleMoves(uint8_t row, uint8_t col);
-    bitboard naiveKnightPossibleMoves(uint8_t row, uint8_t col);
-    bitboard naiveRookPossibleMoves(uint8_t row, uint8_t col);
-    bitboard naiveQueenPossibleMoves(uint8_t row, uint8_t col);
-    bitboard naiveKingPossibleMoves(uint8_t row, uint8_t col);
+    bitboard generatePossibleMoves(PieceType, pair<int8_t, int8_t>, bitboard startboard = 0ULL);
+    bitboard naivePawnPossibleMoves(bool colour, uint8_t row, uint8_t col);
+    bitboard naiveBishopPossibleMoves(bool colour, uint8_t row, uint8_t col, bitboard);
+    bitboard naiveKnightPossibleMoves(bool colour, uint8_t row, uint8_t col);
+    bitboard naiveRookPossibleMoves(bool colour, uint8_t row, uint8_t col, bitboard);
+    bitboard naiveQueenPossibleMoves(bool colour, uint8_t row, uint8_t col, bitboard);
+    bitboard naiveKingPossibleMoves(bool colour, uint8_t row, uint8_t col);
+    bool isKingInCheck(bool colour, bitboard moveBoard, bitboard kBoard);
     void endTurn();
     void displayAll();
-    void displayBoard(bitboard);
     void generateMoves();
     int findRows(bitboard);
     int findColumns(bitboard);

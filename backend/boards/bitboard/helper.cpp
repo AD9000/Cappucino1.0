@@ -1,36 +1,29 @@
 #include <cstdint>
+#include <iostream>
 #include "helper.hpp"
 using namespace masks;
+using namespace std;
 
-int findLDiag(bitboard position)
+int findLDiag(int row, int col)
 {
-    int len = sizeof(ldiags) / sizeof(bitboard);
-    for (int i = 0; i < len; i++)
-    {
-        if (position & ldiags[i])
-        {
-            return i;
-        }
-    }
+    return col + (7 - row);
 }
 
-int findRDiag(bitboard position)
+int findRDiag(int row, int col)
 {
-    int len = sizeof(rdiags) / sizeof(bitboard);
-    for (int i = 0; i < len; i++)
-    {
-        if (position & rdiags[i])
-        {
-            return i;
-        }
-    }
+    return 14 - row - col;
 }
 
 bitboard generateBishopMask(uint8_t row, uint8_t col)
 {
     bitboard position = rows[row] & columns[col];
-    int ldiag = findLDiag(position);
-    int rdiag = findRDiag(position);
+    // cout << "Position, ldiag and rdiag" << endl;
+    // displayBoard(position);
+    int ldiag = findLDiag(row, col);
+    int rdiag = findRDiag(row, col);
+    // cout << "Row, col, ldiag, rdiag: " << row + 0 << " " << col + 0 << " " << ldiag + 0 << " " << rdiag + 0 << endl;
+    // displayBoard(ldiags[ldiag]);
+    // displayBoard(rdiags[rdiag]);
     bitboard board = ldiags[ldiag] ^ rdiags[rdiag];
     if (row != 0)
     {
@@ -83,4 +76,25 @@ bitboard generateRookMask(uint8_t row, uint8_t col)
         board &= ~columns[7];
     }
     return board;
+}
+
+void displayBoard(bitboard board)
+{
+    bitboard mask = 1ULL << 63;
+    for (int i = 1; i <= 64; i++)
+    {
+        if ((mask >> (i - 1)) & board)
+        {
+            printf("#");
+        }
+        else
+        {
+            printf(".");
+        }
+
+        if (i % 8 == 0)
+        {
+            printf("\n");
+        }
+    }
 }

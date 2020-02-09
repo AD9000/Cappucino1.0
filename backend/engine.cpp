@@ -3,6 +3,7 @@
 #include <string>
 #include "boards/bitboard/bitboard.hpp"
 #include "boards/bitboard/pieces/pieces.hpp"
+#include "boards/bitboard/helper.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;
@@ -92,9 +93,10 @@ bool validateMove(Move &move, ChessBoard &board)
     // At this point, piece type is valid so skip!
 
     // Check starting position has piece. And the right one. And the right colour
-    cout << move.startingPos.first << " " << move.startingPos.second << endl;
-    cout << move.finalPos.first << " " << move.finalPos.second << endl;
+    // cout << move.startingPos.first << " " << move.startingPos.second << endl;
+    // cout << move.finalPos.first << " " << move.finalPos.second << endl;
     bool check = board.checkPlayerMove(move);
+    // cout << "Check: " << check << endl;
     if (!check)
     {
         cout << "Invalid move: Either piece is not at the expected position or the piece cannot move to the final position" << endl;
@@ -151,29 +153,50 @@ int main()
 {
     // Create a chess board
     ChessBoard board = ChessBoard();
-    // board.endTurn();
-    // board.makeMove(getMove("pb7b5").second);
-    // board.makeMove(getMove("qd1g4").second);
-    // board.makeMove(getMove("qg4g7").second);
-    // // board.makeMove(getMove("re3e7").second);
+    // board.makeMove(getMove("pe2e4").second);
+    // engineMove(board);
+    // board.makeMove(getMove("bc1a3").second);
+    // // engineMove(board);
+    // // board.makeMove(getMove("ra3e3").second);
+    // // board.endTurn();
+    // // board.makeMove(getMove("pe2e4").second);
+    // // board.endTurn();
+    // board.makeMove(getMove("pf7f5").second);
+    // // board.endTurn();
+    // board.makeMove(getMove("qd1h5").second);
+    // // board.endTurn();
+    // board.checkPlayerMove(getMove("pf5f4").second);
+    // board.makeMove(getMove("pf5f4").second);
     // board.naiveQueenPossibleMoves(6, 1);
     // Ask player to choose a side
+
+    // userMove(board);
+    // // engineMove(board);
+    // // board.makeMove(getMove("pf2f4").second);
+    // board.makeMove(getMove("pe7e5").second);
+    // userMove(board);
+    // // board.makeMove(getMove("nb1c3").second);
+    // board.makeMove(getMove("qd8h4").second);
+    // userMove(board);
+    // cout << board.checkPlayerMove(getMove("ke1f2").second) << endl;
+    // break;
+    // }
+
+    // board.displayAll();
+
     if (!playerSetup(board))
     {
         exit(1);
     }
 
-    // cout << "Starting..." << endl;
+    cout << "Starting..." << endl;
 
     while (!board.isGameOver())
     {
         // Ask user to play a move
         userMove(board);
         engineMove(board);
-        // break;
     }
-
-    // board.displayAll();
 
     return 0;
 }

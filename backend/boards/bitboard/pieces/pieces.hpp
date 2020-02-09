@@ -31,7 +31,7 @@ typedef struct _move
     _move(PieceType p, char sFile, char sRank, char fFile, char fRank)
     {
         piece = p;
-        cout << "startingPos: (" << sRank - '1' << ", " << 7 - (sFile - 'a') << ")" << endl;
+        // cout << "startingPos: (" << sRank - '1' << ", " << 7 - (sFile - 'a') << ")" << endl;
         startingPos = make_pair(sRank - '1', 7 - (sFile - 'a'));
         finalPos = make_pair(fRank - '1', 7 - (fFile - 'a'));
     }
