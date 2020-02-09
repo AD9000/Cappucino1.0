@@ -71,15 +71,6 @@ public:
     bool isKingInCheck(bool colour, bitboard moveBoard, bitboard kBoard);
     void endTurn();
     void displayAll();
-    void generateMoves();
-    int findRows(bitboard);
-    int findColumns(bitboard);
-    // bitboard rowAndColBoardGenerator(bitboard);
-    bitboard generateRookMoves(bitboard, bitboard);
-    // void generateMoves();
-    // void generateMoves();
-    // void generateMoves();
-    // void generateMoves();
 };
 
 ChessBoard createBoard();
