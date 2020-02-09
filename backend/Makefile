@@ -4,12 +4,18 @@ PIECESDIR=$(BITBOARDDIR)/pieces
 
 CC=g++
 
-all: engine
+all: game
+
+.PHONY: playgame
+game: game.o engine.o bitboard.o helper.o
+
+game.o: game.cpp engine.o bitboard.o $(PIECESDIR)/pieces.hpp
+	$(CC) -c game.cpp
 
 .PHONY: mainengine
-engine: engine.o bitboard.o helper.o
+engine: engine.o
 
-engine.o: engine.cpp $(BITBOARDDIR)/bitboard.cpp $(PIECESDIR)/pieces.hpp
+engine.o: engine.cpp 
 	$(CC) -c engine.cpp
 
 bitboard.o: $(BITBOARDDIR)/bitboard.cpp $(BITBOARDDIR)/bitboard.hpp $(PIECESDIR)/pieces.hpp helper.o
