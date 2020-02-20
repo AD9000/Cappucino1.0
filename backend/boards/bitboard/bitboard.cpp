@@ -9,6 +9,7 @@
 #include "pieces/rookMagics.hpp"
 #include "pieces/knightMasks.hpp"
 #include "pieces/kingMasks.hpp"
+#include "pieces/pieceTypes.hpp"
 using namespace std;
 using namespace masks;
 using namespace board;
@@ -349,6 +350,11 @@ bitboard ChessBoard::naiveKingPossibleMoves(bool colour, uint8_t row, uint8_t co
     return KingMasks::kingMasks[index] & ~(colourBoard & ~(1ULL << index));
 }
 
+bitboard ChessBoard::getCurrentBoard()
+{
+    return BOARD;
+}
+
 bitboard ChessBoard::generatePossibleMoves(PieceType p, pair<int8_t, int8_t> indices, bitboard startBoard)
 {
     if (startBoard = 0)
@@ -431,6 +437,8 @@ void ChessBoard::makeMove(Move move)
     bitboard kboard = getTurnColour() ? WHITE_KING : BLACK_KING;
     if (isKingInCheck(getTurnColour(), BOARD, kboard))
     {
+        // Check if any move can be played.
+
         cout << "Check!" << endl
              << endl;
     }
@@ -495,6 +503,16 @@ bool ChessBoard::isKingInCheck(bool colour, bitboard moveBoard, bitboard kBoard)
 void ChessBoard::endTurn()
 {
     Turn = !Turn;
+}
+
+int ChessBoard::getPieceIndex(PieceType piece)
+{
+    return pieceIndices.at(piece);
+}
+
+unordered_map<uint8_t, vector<bitboard>> ChessBoard::getBoards()
+{
+    return boards;
 }
 
 // bitboard ChessBoard::rowAndColBoardGenerator(bitboard board)

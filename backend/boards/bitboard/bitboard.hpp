@@ -61,6 +61,7 @@ public:
     void displayCurrentBoard();
     bool checkPlayerMove(Move);
     void makeMove(Move);
+    bitboard getCurrentBoard();
     bitboard generatePossibleMoves(PieceType, pair<int8_t, int8_t>, bitboard startboard = 0ULL);
     bitboard naivePawnPossibleMoves(bool colour, uint8_t row, uint8_t col);
     bitboard naiveBishopPossibleMoves(bool colour, uint8_t row, uint8_t col, bitboard);
@@ -70,6 +71,13 @@ public:
     bitboard naiveKingPossibleMoves(bool colour, uint8_t row, uint8_t col);
     bool isKingInCheck(bool colour, bitboard moveBoard, bitboard kBoard);
     void endTurn();
+
+    // Engine functions
+    int getPieceIndex(PieceType);
+    unordered_map<uint8_t, vector<bitboard>> getBoards();
+    vector<vector<Move>> getPieceTypeMoves(PieceType, bitboard, bitboard);
+    vector<Move> getPieceMoves(PieceType, int, bitboard);
+
     void displayAll();
 };
 
